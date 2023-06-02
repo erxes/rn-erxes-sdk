@@ -85,38 +85,57 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 - **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
 - **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
 
-## Getting Started
+## Usage
 
-Read **<a href="https://docs.erxes.io/docs/intro" >the documentation<a>** to install erxes locally.
+<img src="https://raw.githubusercontent.com/erxes/rn-erxes-sdk/a7a111fafd30b71e34e99e618800b3110c2b57b6/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20Max%20-%202023-06-02%20at%2017.08.25.png" alt="screenshot" width="350">
 
-**🖐 Requirements**
+**🖐 Installation**
 
-Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/intro" >installation requirements</a>**.
+Install the library using either yarn or npm like so:
 
-Supported operating systems:
+```sh
+yarn add rn-erxes-sdk
+```
 
-- Ubuntu v20.04 or higher
-- macOS Mojave or higher
+OR
 
-Node:
+```sh
+npm install --save rn-erxes-sdk
+```
 
-- NodeJS v12.0 or higher
-- NPM >= 6.x
+This library depends on [react-native-webview](https://www.npmjs.com/package/react-native-webview). Please follow the instructions provided in the docs.
 
-Database:
+### How to use
 
-- MongoDB 3.6+
-- Redis 3.x+
-- RabbitMQ 3.8.x+
-- Elasticsearch
+```
+import React from 'react';
+import { ErxesSDK } from 'rn-erxes-sdk';
 
-Software package managing systems:
+interface Props {
+  navigation: any;
+  route: any;
+  onReceiveMessage: () => void;
+}
 
-- Homebrew (optional)
-- Yarn
-- Xcode (optional)
+const Widget = () => {
 
-We recommend always using the latest version of erxes to start your new projects. Enjoy 🎉
+  const jsScript = `window.erxesSettings = {
+    messenger: {
+      brand_id: "5fkS4v",
+    },
+  };
+  (function() {
+    var script = document.createElement('script');
+    script.src = "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+    script.async = true;
+    var entry = document.getElementsByTagName('script')[0];
+    entry.parentNode.insertBefore(script, entry);
+  })()`;
+
+  return <ErxesSDK script={jsScript} />;
+};
+export default Widget;
+```
 
 ## Become a partner
 
