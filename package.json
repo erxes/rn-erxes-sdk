@@ -1,7 +1,7 @@
 {
   "name": "rn-erxes-sdk",
-  "version": "0.1.0",
-  "description": "test",
+  "version": "0.1.4",
+  "description": "react-native erxes sdk",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
@@ -40,19 +40,19 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/Munkhorgilb/rn-erxes-sdk",
+  "repository": "https://github.com/erxes/rn-erxes-sdk",
   "author": "Munkh-orgil <monkhorgilbayarbaatar@gmail.com> (https://github.com/Munkhorgilb)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Munkhorgilb/rn-erxes-sdk/issues"
+    "url": "https://github.com/erxes/rn-erxes-sdk/issues"
   },
-  "homepage": "https://github.com/Munkhorgilb/rn-erxes-sdk#readme",
+  "homepage": "https://github.com/erxes/rn-erxes-sdk#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@evilmartians/lefthook": "^1.2.2",
     "@commitlint/config-conventional": "^17.0.2",
+    "@evilmartians/lefthook": "^1.2.2",
     "@react-native-community/eslint-config": "^3.0.2",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
@@ -155,5 +155,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "react-native-webview": "11.26.0"
   }
 }
