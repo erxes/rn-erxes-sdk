@@ -1,5 +1,3 @@
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
-
 const url = 'https://office.erxes.io/gateway';
 
 export function getAttachmentUrl(value: string) {
@@ -22,14 +20,4 @@ export const strip_html = (string: any, withoutCut?: boolean) => {
     const cut = result.slice(0, 70);
     return cut;
   }
-};
-
-export const getVisitorId = async () => {
-  const fp = await FingerprintJS.load();
-
-  // The FingerprintJS agent is ready.
-  const result = await fp.get();
-
-  // This is the visitor identifier:
-  return result.visitorId;
 };

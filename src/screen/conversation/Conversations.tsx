@@ -14,17 +14,18 @@ import { useQuery } from '@apollo/client';
 import dayjs from 'dayjs';
 import images from '../../assets/images';
 import FAB from '../../components/FAB';
-import { useNavigation } from '@react-navigation/native';
 import { getAttachmentUrl } from '../../utils/utils';
 
 const Conversations = (props: any) => {
-  const { customerId, visitorId, integrationId, bgColor, brand } = props;
+  const { customerId, visitorId, integrationId, bgColor, brand, newChatIcon } =
+    props;
 
-  const navigation = useNavigation<any>();
+  console.log(brand);
 
   const { data, loading, refetch } = useQuery(widgetsConversations, {
     variables: {
-      customerId,
+      customerId: customerId ? customerId : null,
+      visitorId: customerId ? null : visitorId,
       integrationId,
     },
   });
@@ -57,14 +58,15 @@ const Conversations = (props: any) => {
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => {
-          navigation.navigate('ConversationDetail', {
-            _id: item._id,
-            integrationId,
-            customerId,
-            visitorId,
-            bgColor,
-            brand,
-          });
+          console.log('+');
+          // navigation.navigate('ConversationDetail', {
+          //   _id: item._id,
+          //   integrationId,
+          //   customerId,
+          //   visitorId,
+          //   bgColor,
+          //   brand,
+          // });
         }}
       >
         <Image source={source} style={styles.image} resizeMode="stretch" />
@@ -91,6 +93,16 @@ const Conversations = (props: any) => {
     return <View style={{ height: 10 }} />;
   };
 
+  const emptyComponent = () => {
+    return (
+      <View>
+        <Text style={{ opacity: 0.8 }}>
+          There is no chat currently right now
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <FlatList
@@ -109,18 +121,24 @@ const Conversations = (props: any) => {
             tintColor={bgColor}
           />
         }
+        ListEmptyComponent={emptyComponent}
         ItemSeparatorComponent={seperator}
       />
       <FAB
-        onPress={() =>
-          navigation.navigate('ConversationDetail', {
-            _id: '',
-            integrationId,
-            customerId,
-            bgColor,
-            brand,
-          })
+        onPress={
+          () => {
+            console.log('+++++');
+          }
+          // navigation.navigate('ConversationDetail', {
+          //   _id: '',
+          //   integrationId,
+          //   customerId,
+          //   bgColor,
+          //   brand,
+          // })
         }
+        backgroundColor={bgColor}
+        icon={newChatIcon}
       />
     </View>
   );

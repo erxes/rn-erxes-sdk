@@ -13,7 +13,6 @@ import {
   knowledgeBaseCategoryDetail,
   knowledgeBaseTopicDetail,
 } from './graphql/query';
-import MaterialCommunityIcons from './icons/MaterialCommunityIcons';
 
 const FAQ = (props: any) => {
   const { knowledgeBaseTopicId } = props;
@@ -123,13 +122,6 @@ const FAQ = (props: any) => {
           setSelectedParent('');
         }}
       >
-        <MaterialCommunityIcons
-          allowFontScaling={false}
-          name={'arrow-left'}
-          size={24}
-          color={'red'}
-          direction="ltr"
-        />
         <Text style={{ marginLeft: 5 }}>Back to FAQ</Text>
       </TouchableOpacity>
     );

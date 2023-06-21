@@ -22,7 +22,12 @@ const Supporters = (props: any) => {
   const renderSupporter = (supporter: any, index: number) => {
     const color = supporter?.isOnline ? '#3ccc38' : 'white';
     return (
-      <View key={index}>
+      <View
+        key={index}
+        style={{
+          marginLeft: index === 0 ? 0 : 10,
+        }}
+      >
         <Image
           source={{ uri: supporter?.details?.avatar }}
           style={styles.image}
@@ -34,7 +39,7 @@ const Supporters = (props: any) => {
   };
 
   return (
-    <View style={{ marginTop: 10 }}>
+    <View style={{ marginTop: 10, flexDirection: 'row' }}>
       {supporters
         ?.filter((supporter: any) => supporter?.isActive)
         ?.map((supporter: any, index: number) => {
@@ -53,8 +58,8 @@ const styles = StyleSheet.create({
     borderRadius: 90,
   },
   activeStatus: {
-    width: 15,
-    height: 15,
+    width: 13,
+    height: 13,
     borderRadius: 90,
     position: 'absolute',
     bottom: 0,

@@ -15,7 +15,6 @@ import {
 import React, { useEffect } from 'react';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { widgetsConversationDetail } from '../../graphql/query';
-import MaterialCommunityIcons from '../../icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Message from './Message';
 import InputTools from '../../components/InputTools';
@@ -193,13 +192,7 @@ const Header = (props: any) => {
             },
           ]}
         >
-          <MaterialCommunityIcons
-            allowFontScaling={false}
-            name={'chevron-left'}
-            size={24}
-            color={'white'}
-            direction="ltr"
-          />
+          <Text>A</Text>
         </TouchableOpacity>
         <View
           style={[
@@ -250,13 +243,7 @@ const Header = (props: any) => {
           },
         ]}
       >
-        <MaterialCommunityIcons
-          allowFontScaling={false}
-          name={'chevron-left'}
-          size={24}
-          color={'white'}
-          direction="ltr"
-        />
+        <Text>A</Text>
       </TouchableOpacity>
       <View style={[styles.title]}>
         <Text style={{ fontWeight: '600', fontSize: 16 }}>{brand?.name}</Text>

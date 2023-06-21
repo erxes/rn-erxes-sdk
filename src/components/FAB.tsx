@@ -6,29 +6,24 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
-import MaterialCommunityIcons from '../icons/MaterialCommunityIcons';
 
 type Props = {
-  icon?: string;
+  icon?: any;
   onPress: () => void;
   top?: number;
   left?: number;
   right?: number;
   bottom?: number;
   backgroundColor?: string;
-  iconColor?: string;
-  iconSize?: number;
   style?: StyleProp<ViewStyle>;
   iconSource?: string;
 };
 
 const FAB = (props: Props) => {
   const {
-    icon = 'plus',
+    icon,
     onPress,
     backgroundColor = '#2F1F69',
-    iconColor = '#fff',
-    iconSize = 20,
     style,
     bottom = 20,
   } = props;
@@ -44,13 +39,7 @@ const FAB = (props: Props) => {
         style,
       ]}
     >
-      <MaterialCommunityIcons
-        allowFontScaling={false}
-        name={icon}
-        size={iconSize}
-        color={iconColor}
-        direction="ltr"
-      />
+      {icon}
     </TouchableOpacity>
   );
 };

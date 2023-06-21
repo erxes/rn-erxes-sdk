@@ -9,13 +9,20 @@ import {
 import React from 'react';
 import Social from './Social';
 import Supporters from './Supporters';
-import MaterialCommunityIcons from '../../icons/MaterialCommunityIcons';
 
 const Greetings = (props: any) => {
-  const { greetings, bgColor, integrationId, hasBack, onBack } = props;
+  const {
+    greetings,
+    bgColor,
+    textColor,
+    integrationId,
+    hasBack,
+    onBack,
+    backIcon,
+  } = props;
 
   return (
-    <SafeAreaView style={{ backgroundColor: bgColor || 'green' }}>
+    <SafeAreaView style={{ backgroundColor: bgColor }}>
       {hasBack ? (
         <TouchableOpacity
           onPress={() => {
@@ -28,24 +35,18 @@ const Greetings = (props: any) => {
             },
           ]}
         >
-          <MaterialCommunityIcons
-            allowFontScaling={false}
-            name={'chevron-left'}
-            size={24}
-            color={'white'}
-            direction="ltr"
-          />
+          {backIcon}
         </TouchableOpacity>
       ) : null}
       <View style={[styles.title]}>
         <View style={{ marginTop: 20 }}>
-          <Text style={{ fontWeight: '600', fontSize: 18 }}>
+          <Text style={{ fontWeight: '600', fontSize: 18, color: textColor }}>
             {greetings?.messages?.greetings?.title}
           </Text>
           <View style={{ marginTop: 20 }}>
             <Social links={greetings?.links} />
           </View>
-          <Text style={{ marginTop: 20, color: '#393C40' }}>
+          <Text style={{ marginTop: 20, color: textColor, opacity: 0.8 }}>
             {greetings?.messages?.greetings?.message}
           </Text>
         </View>

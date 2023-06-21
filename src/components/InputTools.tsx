@@ -1,7 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import MaterialCommunityIcons from '../icons/MaterialCommunityIcons';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const InputTools: React.FC<any> = (props: any) => {
   const { onSend, bgColor } = props;
@@ -39,13 +44,7 @@ const InputTools: React.FC<any> = (props: any) => {
           onInput('');
         }}
       >
-        <MaterialCommunityIcons
-          allowFontScaling={false}
-          name={'send'}
-          size={20}
-          color={'white'}
-          direction="ltr"
-        />
+        <Text>A</Text>
       </TouchableOpacity>
     </View>
   );
