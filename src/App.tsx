@@ -1,51 +1,92 @@
-import React from 'react';
-import { WebView } from 'react-native-webview';
-import { Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import { ApolloProvider } from '@apollo/client';
+import ClientProvider from './graphql/apolloClient';
+import Widget from './Widget';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import ConversationDetail from './screen/conversation/ConversationDetail';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getVisitorId } from './utils/utils';
 
 export type PropTypes = {
-  script: string;
+  brandCode: string;
+  email?: string;
+  hasBack?: boolean;
+  onBack?: () => void;
 };
 
-const ErxesSDK: React.FC<PropTypes> = ({ script }) => {
-  const onMessage = (data: any) => {
-    const { notificationCount } = JSON.parse(data.nativeEvent.data);
+const ErxesSDK: React.FC<PropTypes> = ({
+  brandCode,
+  email,
+  hasBack = false,
+  onBack = () => {},
+}) => {
+  const RootStack = createStackNavigator();
 
-    console.log('****************** ', notificationCount);
-  };
+  const [connection, setConnection] = React.useState<any>({
+    cachedCustomerId: null,
+    visitorId: null,
+  });
+
+  const props = { brandCode, email, hasBack, onBack, connection };
+
+  useEffect(() => {
+    let visitorId;
+    let tempCustomerId = '';
+    AsyncStorage.getItem('clockId')
+      .then((value) => {
+        if (value !== null) {
+          tempCustomerId = value;
+        }
+      })
+      .catch((e) => {
+        console.log('checkIntro', e.message);
+      });
+    if (!tempCustomerId) {
+      // declare the data fetching function
+      const fetchData = async () => {
+        visitorId = await getVisitorId();
+      };
+
+      // call the function
+      fetchData()
+        // make sure to catch any error
+        .catch(console.error);
+    }
+    setConnection({
+      cachedCustomerId: tempCustomerId,
+      visitorId,
+    });
+  }, []);
 
   return (
-    <WebView
-      ref={() => {}}
-      source={
-        Platform.OS === 'ios'
-          ? require('./index.html')
-          : { uri: 'file:///android_asset/index.html' }
-      }
-      originWhitelist={['*']}
-      sharedCookiesEnabled={true}
-      cacheEnabled={true}
-      allowFileAccess={true}
-      domStorageEnabled={true}
-      thirdPartyCookiesEnabled={true}
-      // allowingReadAccessToURL
-      // style={{ width: 200 }}
-      onLoadEnd={(syntheticEvent) => {
-        // update component to be aware of loading status
-        const { nativeEvent } = syntheticEvent;
-        console.log(nativeEvent.loading);
-      }}
-      javaScriptEnabled={true}
-      onError={(er) => {
-        console.log(er);
-      }}
-      startInLoadingState={true}
-      // renderLoading={() => <Loader />}
-      injectedJavaScript={script}
-      // injectedJavaScriptBeforeContentLoaded={runFirst}
-
-      // onNavigationStateChange={this.handleWebViewNavigationStateChange}
-      onMessage={onMessage}
-    />
+    <ApolloProvider client={ClientProvider()}>
+      <NavigationContainer>
+        <RootStack.Navigator>
+          <RootStack.Screen
+            name="Widget"
+            options={{
+              headerShown: false,
+              gestureEnabled: false,
+            }}
+          >
+            {(rest: any) => <Widget {...rest} {...props} />}
+          </RootStack.Screen>
+          <RootStack.Screen
+            name="ConversationDetail"
+            component={ConversationDetail}
+            options={{
+              headerShown: false,
+              cardStyleInterpolator: ({ current }) => ({
+                cardStyle: {
+                  opacity: current.progress,
+                },
+              }),
+            }}
+          />
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </ApolloProvider>
   );
 };
 
