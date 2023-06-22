@@ -103,8 +103,6 @@ OR
 npm install --save rn-erxes-sdk
 ```
 
-This library depends on [react-native-webview](https://www.npmjs.com/package/react-native-webview). Please follow the instructions provided in the docs.
-
 ### How to use
 
 ```
@@ -118,24 +116,26 @@ interface Props {
 }
 
 const Widget = () => {
-
-  const jsScript = `window.erxesSettings = {
-    messenger: {
-      brand_id: "5fkS4v",
-    },
-  };
-  (function() {
-    var script = document.createElement('script');
-    script.src = "https://w.office.erxes.io/build/messengerWidget.bundle.js";
-    script.async = true;
-    var entry = document.getElementsByTagName('script')[0];
-    entry.parentNode.insertBefore(script, entry);
-  })()`;
-
-  return <ErxesSDK script={jsScript} />;
+  return (
+    <ErxesSDK
+      brandCode={brandCode}
+    />
+  );
 };
 export default Widget;
 ```
+
+### Properties
+
+| Prop              | Default |
+| ----------------- | ------- |
+| **`brandCode`**   | `None`  |
+| **`email`**       | `Null`  |
+| **`hasBack`**     | `false` |
+| **`onBack`**      | `None`  |
+| **`backIcon`**    | `None`  |
+| **`newChatIcon`** | `None`  |
+| **`sendIcon`**    | `None`  |
 
 ## Become a partner
 
