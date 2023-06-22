@@ -4,6 +4,8 @@ import { useMutation } from '@apollo/client';
 import { connect } from './graphql/mutation';
 import Greetings from './screen/greetings/Greetings';
 import Conversations from './screen/conversation/Conversations';
+import AppContext from './context/Context';
+import ConversationDetail from './screen/conversation/ConversationDetail';
 
 const Widget = (props: any) => {
   const {
@@ -12,10 +14,16 @@ const Widget = (props: any) => {
     hasBack,
     onBack,
     connection,
+    setConnection,
     backIcon,
     newChatIcon,
+    sendIcon,
   } = props;
+
   const [response, setResponse] = React.useState<any>(null);
+  const [conversationId, setConversationId] = React.useState<string | null>(
+    null
+  );
 
   const [connectMutation] = useMutation(connect);
 
@@ -39,43 +47,55 @@ const Widget = (props: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const bgColor =
-    response?.data?.widgetsMessengerConnect?.uiOptions?.color || '#5629b6';
   const integrationId = response?.data?.widgetsMessengerConnect?.integrationId;
-  const brand = response?.data?.widgetsMessengerConnect?.brand;
-  const textColor =
-    response?.data?.widgetsMessengerConnect?.uiOptions?.textColor || '#fff';
 
   if (!integrationId) {
     return null;
   }
 
-  const greetingProps = {
-    greetings: response?.data?.widgetsMessengerConnect?.messengerData,
-    integrationId,
-    hasBack,
-    onBack,
-    backIcon,
-    bgColor,
-    textColor,
-    brand,
-  };
-
-  const conversationProps = {
-    customerId: connection?.cachedCustomerId,
-    visitorId: connection?.visitorId,
-    integrationId,
-    bgColor,
-    brand,
-    newChatIcon,
-    textColor,
-  };
-
   return (
-    <View style={styles.container}>
-      <Greetings {...greetingProps} />
-      <Conversations {...conversationProps} />
-    </View>
+    <AppContext.Provider
+      value={{
+        // Ids
+        customerId: connection?.cachedCustomerId,
+        visitorId: connection?.visitorId,
+        //Props
+        email,
+        brandCode,
+        hasBack,
+        onBack,
+        backIcon,
+        newChatIcon,
+        sendIcon,
+        //Ui Options
+        bgColor:
+          response?.data?.widgetsMessengerConnect?.uiOptions?.color ||
+          '#5629b6',
+        textColor:
+          response?.data?.widgetsMessengerConnect?.uiOptions?.textColor ||
+          '#fff',
+        //Datas
+        brand: response?.data?.widgetsMessengerConnect?.brand,
+        greetings: response?.data?.widgetsMessengerConnect?.messengerData,
+        integrationId,
+        //Conversation
+        conversationId,
+        setConversationId,
+        // Connection
+        setConnection,
+      }}
+    >
+      <View style={styles.container}>
+        {conversationId !== null ? (
+          <ConversationDetail />
+        ) : (
+          <>
+            <Greetings />
+            <Conversations />
+          </>
+        )}
+      </View>
+    </AppContext.Provider>
   );
 };
 

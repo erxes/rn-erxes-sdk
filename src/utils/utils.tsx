@@ -21,3 +21,12 @@ export const strip_html = (string: any, withoutCut?: boolean) => {
     return cut;
   }
 };
+
+// check if valid url
+export const isValidURL = (u: string) => {
+  try {
+    return Boolean(new URL(u));
+  } catch (e) {
+    return false;
+  }
+};

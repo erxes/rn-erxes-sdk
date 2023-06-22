@@ -30,7 +30,7 @@ const Social = (props: any) => {
       {links?.facebook
         ? renderSocial(links.facebook, images.facebook, 0)
         : null}
-      {links?.twitter ? renderSocial(links.twitter, images.twitter, 1) : null}
+      {links.twitter ? renderSocial(links.twitter, images.twitter, 1) : null}
       {links?.youtube ? renderSocial(links.youtube, images.youtube, 2) : null}
     </View>
   );

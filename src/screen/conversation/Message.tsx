@@ -1,17 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Image,
-  Linking,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Linking } from 'react-native';
 import React from 'react';
 import dayjs from 'dayjs';
 import HTML from 'react-native-render-html';
-import { getAttachmentUrl, strip_html } from '../../utils/utils';
+import { strip_html } from '../../utils/utils';
 import Attachment from './Attachment';
+import Avatar from '../../components/Avatar';
 
 const { width } = Dimensions.get('window');
 
@@ -19,19 +13,6 @@ const Message = (props: any) => {
   const { item, bgColor } = props;
 
   const position = item?.customerId ? 'right' : 'left';
-
-  const renderAvatar = () => {
-    const url = getAttachmentUrl(item?.user?.details?.avatar);
-    return (
-      <View style={{ marginRight: 10 }}>
-        <Image
-          source={{ uri: url, cache: 'force-cache' }}
-          style={styles.avatar}
-          resizeMode="stretch"
-        />
-      </View>
-    );
-  };
 
   const renderContent = () => {
     const strippedContent = strip_html(item?.content || '');
@@ -43,7 +24,9 @@ const Message = (props: any) => {
 
   return (
     <View style={[customStyles[position].container]}>
-      {position === 'left' ? renderAvatar() : null}
+      {position === 'left' ? (
+        <Avatar user={item?.user} bgColor={bgColor} />
+      ) : null}
       <View>
         <View
           style={[

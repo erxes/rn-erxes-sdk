@@ -4,23 +4,34 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  Image,
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { widgetsConversations } from '../../graphql/query';
 import { useQuery } from '@apollo/client';
 import dayjs from 'dayjs';
-import images from '../../assets/images';
 import FAB from '../../components/FAB';
-import { getAttachmentUrl } from '../../utils/utils';
+import AppContext from '../../context/Context';
+import Avatar from '../../components/Avatar';
 
-const Conversations = (props: any) => {
-  const { customerId, visitorId, integrationId, bgColor, brand, newChatIcon } =
-    props;
+const Conversations = () => {
+  const value = useContext(AppContext);
 
-  console.log(brand);
+  const {
+    customerId,
+    visitorId,
+    newChatIcon,
+    bgColor,
+    integrationId,
+    setConversationId,
+  } = value;
+
+  console.log({
+    customerId,
+    visitorId,
+    integrationId,
+  });
 
   const { data, loading, refetch } = useQuery(widgetsConversations, {
     variables: {
@@ -45,31 +56,18 @@ const Conversations = (props: any) => {
   }
 
   const renderItem = ({ item }: any) => {
-    let source = images.avatar;
     let name = 'Support Staff';
     if (item?.participatedUsers?.length > 0) {
-      source = {
-        uri: getAttachmentUrl(item?.participatedUsers[0]?.details?.avatar),
-        cache: 'only-if-cached',
-      };
       name = item?.participatedUsers[0]?.details?.fullName;
     }
     return (
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => {
-          console.log('+');
-          // navigation.navigate('ConversationDetail', {
-          //   _id: item._id,
-          //   integrationId,
-          //   customerId,
-          //   visitorId,
-          //   bgColor,
-          //   brand,
-          // });
+          setConversationId(item._id);
         }}
       >
-        <Image source={source} style={styles.image} resizeMode="stretch" />
+        <Avatar user={item?.participatedUsers[0]} bgColor={bgColor} />
         <View style={{ flex: 1, marginLeft: 10 }}>
           <Text style={{ fontWeight: '500' }}>{name}</Text>
           <Text style={{ color: '#686868' }}>{item?.content}</Text>
@@ -125,18 +123,9 @@ const Conversations = (props: any) => {
         ItemSeparatorComponent={seperator}
       />
       <FAB
-        onPress={
-          () => {
-            console.log('+++++');
-          }
-          // navigation.navigate('ConversationDetail', {
-          //   _id: '',
-          //   integrationId,
-          //   customerId,
-          //   bgColor,
-          //   brand,
-          // })
-        }
+        onPress={() => {
+          setConversationId('');
+        }}
         backgroundColor={bgColor}
         icon={newChatIcon}
       />

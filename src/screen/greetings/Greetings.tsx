@@ -6,20 +6,23 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import Social from './Social';
 import Supporters from './Supporters';
+import AppContext from '../../context/Context';
 
-const Greetings = (props: any) => {
+const Greetings = () => {
+  const value = useContext(AppContext);
+
   const {
     greetings,
-    bgColor,
-    textColor,
-    integrationId,
     hasBack,
     onBack,
     backIcon,
-  } = props;
+    bgColor,
+    textColor,
+    integrationId,
+  } = value;
 
   return (
     <SafeAreaView style={{ backgroundColor: bgColor }}>
@@ -41,13 +44,14 @@ const Greetings = (props: any) => {
       <View style={[styles.title]}>
         <View style={{ marginTop: 20 }}>
           <Text style={{ fontWeight: '600', fontSize: 18, color: textColor }}>
-            {greetings?.messages?.greetings?.title}
+            {greetings?.messages?.greetings?.title || 'Тавтай морилно уу'}
           </Text>
           <View style={{ marginTop: 20 }}>
             <Social links={greetings?.links} />
           </View>
           <Text style={{ marginTop: 20, color: textColor, opacity: 0.8 }}>
-            {greetings?.messages?.greetings?.message}
+            {greetings?.messages?.greetings?.message ||
+              'Хэрэв танд асуулт байвал бидэнд мэдэгдээрэй! Бид туслахдаа баяртай байх болно.'}
           </Text>
         </View>
         <Supporters integrationId={integrationId} />

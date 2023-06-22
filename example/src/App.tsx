@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ErxesSDK } from 'rn-erxes-sdk';
 
 export default function App() {
-  const brandCode = 'RjcXwk';
+  const brandCode = 'YGsL4e';
   return (
     <ErxesSDK
       brandCode={brandCode}

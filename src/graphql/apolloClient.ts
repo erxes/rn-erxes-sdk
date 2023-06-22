@@ -10,14 +10,15 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 
-const baseUrl = 'office.erxes.io/gateway';
+// const baseUrl = 'office.erxes.io/gateway';
+const baseUrl = 'localhost:4000';
 
-export const apiUrl = `https://${baseUrl}`;
+export const apiUrl = `http://${baseUrl}`;
 
 // Subscription config
 export const wsLink: any = new GraphQLWsLink(
   createClient({
-    url: `wss://${baseUrl}/graphql` || 'ws://localhost:4000/graphql',
+    url: `ws://${baseUrl}/graphql` || 'ws://localhost:4000/graphql',
     retryAttempts: 1000,
     retryWait: async () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));

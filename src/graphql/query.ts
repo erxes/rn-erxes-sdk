@@ -127,16 +127,7 @@ const widgetsConversationDetail = gql`
           status
           __typename
         }
-        engageData {
-          content
-          kind
-          sentAs
-          messageId
-          brandId
-          __typename
-        }
         botData
-        messengerAppData
         attachments {
           url
           name

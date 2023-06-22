@@ -13,6 +13,7 @@ export type PropTypes = {
   onBack?: () => void;
   backIcon?: any;
   newChatIcon: any;
+  sendIcon?: any;
 };
 
 const ErxesSDK: React.FC<PropTypes> = ({
@@ -22,6 +23,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
   onBack = () => {},
   backIcon,
   newChatIcon,
+  sendIcon,
 }) => {
   const [connection, setConnection] = React.useState<any>({
     cachedCustomerId: null,
@@ -36,28 +38,30 @@ const ErxesSDK: React.FC<PropTypes> = ({
     connection,
     backIcon,
     newChatIcon,
+    sendIcon,
+    setConnection,
   };
 
   useEffect(() => {
-    let visitorId;
+    let visitorId: any;
     let tempCustomerId = '';
-    AsyncStorage.getItem('clockId')
+    AsyncStorage.getItem('cachedCustomerId')
       .then((value) => {
         if (value !== null) {
-          tempCustomerId = value;
+          tempCustomerId = JSON.parse(value);
         }
+        if (!tempCustomerId) {
+          // declare the data fetching function
+          visitorId = new ObjectId();
+        }
+        setConnection({
+          cachedCustomerId: tempCustomerId ? tempCustomerId : null,
+          visitorId: visitorId?.toString(),
+        });
       })
       .catch((e) => {
         console.log('checkIntro', e.message);
       });
-    if (!tempCustomerId) {
-      // declare the data fetching function
-      visitorId = new ObjectId();
-    }
-    setConnection({
-      cachedCustomerId: tempCustomerId ? tempCustomerId : null,
-      visitorId: visitorId?.toString(),
-    });
   }, []);
 
   return (

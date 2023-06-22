@@ -11,57 +11,88 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
+  SafeAreaView,
 } from 'react-native';
-import React, { useEffect } from 'react';
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import React, { useContext, useEffect } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
 import { widgetsConversationDetail } from '../../graphql/query';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Message from './Message';
 import InputTools from '../../components/InputTools';
 import { widgetsInsertMessage } from '../../graphql/mutation';
 import { conversationMessageInserted } from '../../graphql/subscription';
 import { getAttachmentUrl } from '../../utils/utils';
-import { getLocalStorageItem, setLocalStorageItem } from '../../utils/common';
+import AppContext from '../../context/Context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ConversationDetail = (props: any) => {
-  const { route, navigation } = props;
-  const { _id, integrationId, bgColor, brand, customerId, visitorId } =
-    route.params;
+const ConversationDetail = () => {
+  const value = useContext(AppContext);
+
+  const {
+    brand,
+    conversationId,
+    bgColor,
+    integrationId,
+    customerId,
+    visitorId,
+    setConnection,
+    sendIcon,
+  } = value;
 
   const [messages, setMessages] = React.useState<any>([]);
 
-  const { data, loading } = useQuery(widgetsConversationDetail, {
-    variables: {
-      _id,
-      integrationId,
-    },
-    fetchPolicy: 'network-only',
-    skip: !_id,
-  });
+  // console.log(messages);
 
-  const { data: subscriptionData } = useSubscription(
-    conversationMessageInserted,
+  const { data, loading, subscribeToMore } = useQuery(
+    widgetsConversationDetail,
     {
-      variables: { _id },
+      variables: {
+        _id: conversationId,
+        integrationId,
+      },
       fetchPolicy: 'network-only',
-      skip: !_id,
+      skip: !conversationId,
     }
   );
 
   useEffect(() => {
-    let shouldAdd = subscriptionData && data;
-    if (data?.length > 0) {
-      shouldAdd =
-        subscriptionData?.conversationMessageInserted?._id !== data[0]._id;
-    }
-    if (shouldAdd) {
-      setMessages((prev: any) => [
-        subscriptionData?.conversationMessageInserted,
-        ...prev,
-      ]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscriptionData]);
+    const unSubsToMore = subscribeToMore({
+      document: conversationMessageInserted,
+      variables: { _id: conversationId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const message = subscriptionData.data.conversationMessageInserted;
+        const tempWidgetsConversationDetail =
+          prev.widgetsConversationDetail || {};
+        const tempMessages = tempWidgetsConversationDetail?.messages || [];
+
+        // check whether or not already inserted
+        const prevEntry = tempMessages.find((m: any) => m._id === message?._id);
+
+        if (prevEntry) {
+          return prev;
+        }
+
+        // do not show internal or bot messages
+        if (message.internal || message.fromBot) {
+          return prev;
+        }
+
+        // add new message to messages list
+        const next = {
+          ...prev,
+          widgetsConversationDetail: {
+            ...tempWidgetsConversationDetail,
+            messages: [...tempMessages, message],
+          },
+        };
+
+        return next;
+      },
+    });
+
+    return () => {
+      unSubsToMore;
+    };
+  }, [conversationId, subscribeToMore]);
 
   useEffect(() => {
     if (data?.widgetsConversationDetail?.messages) {
@@ -80,7 +111,7 @@ const ConversationDetail = (props: any) => {
         integrationId,
         customerId,
         visitorId,
-        conversationId: _id,
+        conversationId,
         contentType: 'text',
         message: text,
       },
@@ -90,17 +121,21 @@ const ConversationDetail = (props: any) => {
           return console.log(res.errors);
         }
         if (res.data.widgetsInsertMessage) {
-          const cachedCustomerId = getLocalStorageItem('customerId');
-          if (!cachedCustomerId) {
+          if (!customerId) {
             const tempCustomerId = res.data.widgetsInsertMessage.customerId;
-            setLocalStorageItem('customerId', tempCustomerId);
+            const jsonValue = JSON.stringify(tempCustomerId);
+            AsyncStorage.setItem('cachedCustomerId', jsonValue);
+            setConnection({
+              visitorId,
+              cachedCustomerId: tempCustomerId,
+            });
           }
           let shouldAdd = messages?.length === 0;
           if (!shouldAdd) {
-            shouldAdd = res.data.widgetsInsertMessage._id !== data[0]._id;
+            shouldAdd = res.data.widgetsInsertMessage._id !== messages[0]._id;
           }
           if (shouldAdd) {
-            const newArray = [res.data.widgetsInsertMessage, ...data];
+            const newArray = [res.data.widgetsInsertMessage, ...messages];
             setMessages(newArray);
           }
         }
@@ -142,7 +177,6 @@ const ConversationDetail = (props: any) => {
   return (
     <View style={{ flex: 1 }}>
       <Header
-        navigation={navigation}
         brand={brand}
         bgColor={bgColor}
         users={data?.widgetsConversationDetail?.participatedUsers}
@@ -154,7 +188,7 @@ const ConversationDetail = (props: any) => {
           keyboardVerticalOffset={100}
         >
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <InputTools onSend={onSend} bgColor={bgColor} />
+            <InputTools onSend={onSend} bgColor={bgColor} sendIcon={sendIcon} />
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </View>
@@ -165,25 +199,83 @@ const ConversationDetail = (props: any) => {
 export default ConversationDetail;
 
 const Header = (props: any) => {
-  const { navigation, brand, bgColor, users } = props;
+  const { brand, bgColor, users } = props;
 
-  const insets = useSafeAreaInsets();
+  const value = useContext(AppContext);
+
+  const { backIcon, setConversationId } = value;
 
   if (users?.length > 0) {
-    const url = getAttachmentUrl(users[0]?.details?.avatar);
+    let source;
+    if (users[0]?.details?.avatar) {
+      source = { uri: getAttachmentUrl(users[0]?.details?.avatar) };
+    } else {
+      source = require('../../assets/images/avatar.png');
+    }
     return (
+      <SafeAreaView
+        style={{
+          backgroundColor: bgColor,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingBottom: 20,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              setConversationId(null);
+            }}
+            style={[
+              styles.backStyle,
+              {
+                backgroundColor: '#2F1F69',
+              },
+            ]}
+          >
+            {backIcon}
+          </TouchableOpacity>
+          <View
+            style={[
+              styles.title,
+              {
+                marginLeft: 10,
+                alignItems: 'center',
+                flex: 1,
+              },
+            ]}
+          >
+            <Image source={source} style={styles.avatar} resizeMode="stretch" />
+            <View style={{ marginLeft: 10 }}>
+              <Text style={{ fontWeight: '600' }}>
+                {users[0]?.details?.fullName}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView
+      style={{
+        backgroundColor: bgColor,
+      }}
+    >
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           paddingBottom: 20,
-          backgroundColor: bgColor || 'green',
-          paddingTop: insets.top,
         }}
       >
         <TouchableOpacity
           onPress={() => {
-            navigation.goBack();
+            setConversationId(null);
           }}
           style={[
             styles.backStyle,
@@ -192,63 +284,13 @@ const Header = (props: any) => {
             },
           ]}
         >
-          <Text>A</Text>
+          {backIcon}
         </TouchableOpacity>
-        <View
-          style={[
-            styles.title,
-            {
-              marginLeft: 10,
-              alignItems: 'center',
-              flex: 1,
-            },
-          ]}
-        >
-          <Image
-            source={{ uri: url, cache: 'force-cache' }}
-            style={styles.avatar}
-            resizeMode="stretch"
-          />
-          <View style={{ marginLeft: 10 }}>
-            <Text style={{ fontWeight: '600' }}>
-              {users[0]?.details?.fullName}
-            </Text>
-            <Text style={{ color: '#686868' }}>
-              {users[0]?.details?.position}
-            </Text>
-          </View>
+        <View style={[styles.title]}>
+          <Text style={{ fontWeight: '600', fontSize: 16 }}>{brand?.name}</Text>
         </View>
       </View>
-    );
-  }
-
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingBottom: 20,
-        backgroundColor: bgColor || 'green',
-        paddingTop: insets.top,
-      }}
-    >
-      <TouchableOpacity
-        onPress={() => {
-          navigation.goBack();
-        }}
-        style={[
-          styles.backStyle,
-          {
-            backgroundColor: '#2F1F69',
-          },
-        ]}
-      >
-        <Text>A</Text>
-      </TouchableOpacity>
-      <View style={[styles.title]}>
-        <Text style={{ fontWeight: '600', fontSize: 16 }}>{brand?.name}</Text>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
