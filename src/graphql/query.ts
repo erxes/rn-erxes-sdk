@@ -77,6 +77,65 @@ const knowledgeBaseTopicDetail = gql`
   }
 `;
 
+const formDetail = gql`
+  query formDetail($_id: String!) {
+    formDetail(_id: $_id) {
+      title
+      description
+      buttonText
+      numberOfPages
+      googleMapApiKey
+      code
+      fields {
+        _id
+        name
+        type
+        text
+        content
+        description
+        options
+        locationOptions {
+          lat
+          lng
+          description
+          __typename
+        }
+        objectListConfigs {
+          key
+          label
+          type
+          __typename
+        }
+        isRequired
+        order
+        validation
+        associatedFieldId
+        column
+        groupId
+        logicAction
+        pageNumber
+        logics {
+          fieldId
+          logicOperator
+          logicValue
+          __typename
+        }
+        products {
+          _id
+          name
+          unitPrice
+          attachment {
+            url
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+  }
+`;
 const knowledgeBaseCategoryDetail = gql`
   query knowledgeBaseCategoryDetail($_id: String!) {
     knowledgeBaseCategoryDetail(_id: $_id) {
@@ -164,4 +223,5 @@ export {
   widgetsConversationDetail,
   knowledgeBaseTopicDetail,
   knowledgeBaseCategoryDetail,
+  formDetail,
 };

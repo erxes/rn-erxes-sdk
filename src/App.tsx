@@ -5,15 +5,16 @@ import ClientProvider from './graphql/apolloClient';
 import Widget from './Widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ObjectId } from 'bson';
+import FormWidget from './FormWidget';
 
 export type PropTypes = {
   brandCode: string;
   email?: string;
   hasBack?: boolean;
   onBack?: () => void;
-  backIcon?: any;
-  newChatIcon: any;
-  sendIcon?: any;
+  formCode?: string;
+  onSuccess?: any;
+  onError?: any;
 };
 
 const ErxesSDK: React.FC<PropTypes> = ({
@@ -21,9 +22,9 @@ const ErxesSDK: React.FC<PropTypes> = ({
   email = null,
   hasBack = false,
   onBack = () => {},
-  backIcon,
-  newChatIcon,
-  sendIcon,
+  formCode = null,
+  onSuccess,
+  onError,
 }) => {
   const [connection, setConnection] = React.useState<any>({
     cachedCustomerId: null,
@@ -36,10 +37,10 @@ const ErxesSDK: React.FC<PropTypes> = ({
     hasBack,
     onBack,
     connection,
-    backIcon,
-    newChatIcon,
-    sendIcon,
     setConnection,
+    formCode,
+    onSuccess,
+    onError,
   };
 
   useEffect(() => {
@@ -66,7 +67,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
 
   return (
     <ApolloProvider client={ClientProvider()}>
-      <Widget {...props} />
+      {formCode ? <FormWidget {...props} /> : <Widget {...props} />}
     </ApolloProvider>
   );
 };

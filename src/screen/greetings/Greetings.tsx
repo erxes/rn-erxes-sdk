@@ -10,19 +10,13 @@ import React, { useContext } from 'react';
 import Social from './Social';
 import Supporters from './Supporters';
 import AppContext from '../../context/Context';
+import { ArrowLeft } from '../../icons/icons';
 
 const Greetings = () => {
   const value = useContext(AppContext);
 
-  const {
-    greetings,
-    hasBack,
-    onBack,
-    backIcon,
-    bgColor,
-    textColor,
-    integrationId,
-  } = value;
+  const { greetings, hasBack, onBack, bgColor, textColor, integrationId } =
+    value;
 
   return (
     <SafeAreaView style={{ backgroundColor: bgColor }}>
@@ -38,7 +32,7 @@ const Greetings = () => {
             },
           ]}
         >
-          {backIcon}
+          <ArrowLeft size={24} />
         </TouchableOpacity>
       ) : null}
       <View style={[styles.title]}>

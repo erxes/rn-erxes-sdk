@@ -23,6 +23,7 @@ import { conversationMessageInserted } from '../../graphql/subscription';
 import { getAttachmentUrl } from '../../utils/utils';
 import AppContext from '../../context/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ArrowLeft } from '../../icons/icons';
 
 const ConversationDetail = () => {
   const value = useContext(AppContext);
@@ -35,7 +36,6 @@ const ConversationDetail = () => {
     customerId,
     visitorId,
     setConnection,
-    sendIcon,
   } = value;
 
   const [messages, setMessages] = React.useState<any>([]);
@@ -188,7 +188,7 @@ const ConversationDetail = () => {
           keyboardVerticalOffset={100}
         >
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <InputTools onSend={onSend} bgColor={bgColor} sendIcon={sendIcon} />
+            <InputTools onSend={onSend} bgColor={bgColor} />
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </View>
@@ -203,7 +203,7 @@ const Header = (props: any) => {
 
   const value = useContext(AppContext);
 
-  const { backIcon, setConversationId } = value;
+  const { setConversationId } = value;
 
   if (users?.length > 0) {
     let source;
@@ -236,7 +236,7 @@ const Header = (props: any) => {
               },
             ]}
           >
-            {backIcon}
+            <ArrowLeft size={24} />
           </TouchableOpacity>
           <View
             style={[
@@ -284,7 +284,7 @@ const Header = (props: any) => {
             },
           ]}
         >
-          {backIcon}
+          <ArrowLeft size={24} />
         </TouchableOpacity>
         <View style={[styles.title]}>
           <Text style={{ fontWeight: '600', fontSize: 16 }}>{brand?.name}</Text>

@@ -15,8 +15,6 @@ const Widget = (props: any) => {
     onBack,
     connection,
     setConnection,
-    backIcon,
-    newChatIcon,
     sendIcon,
   } = props;
 
@@ -39,6 +37,7 @@ const Widget = (props: any) => {
       },
     })
       .then((res: any) => {
+        console.log(res, 'res');
         setResponse(res);
       })
       .catch((err) => {
@@ -64,8 +63,6 @@ const Widget = (props: any) => {
         brandCode,
         hasBack,
         onBack,
-        backIcon,
-        newChatIcon,
         sendIcon,
         //Ui Options
         bgColor:

@@ -39,6 +39,34 @@ const connect = gql`
   }
 `;
 
+const widgetsLeadConnect = gql`
+  mutation widgetsLeadConnect(
+    $brandCode: String!
+    $formCode: String!
+    $cachedCustomerId: String
+  ) {
+    widgetsLeadConnect(
+      brandCode: $brandCode
+      formCode: $formCode
+      cachedCustomerId: $cachedCustomerId
+    ) {
+      form {
+        _id
+        title
+        description
+        __typename
+      }
+      integration {
+        _id
+        name
+        leadData
+        languageCode
+        __typename
+      }
+      __typename
+    }
+  }
+`;
 const widgetsInsertMessage = gql`
   mutation widgetsInsertMessage(
     $integrationId: String!
@@ -120,4 +148,35 @@ const widgetsSaveCustomerGetNotified = gql`
   }
 `;
 
-export { connect, widgetsInsertMessage, widgetsSaveCustomerGetNotified };
+const widgetsSaveLead = gql`
+  mutation widgetsSaveLead(
+    $integrationId: String!
+    $formId: String!
+    $submissions: [FieldValueInput]
+    $browserInfo: JSON!
+    $cachedCustomerId: String
+  ) {
+    widgetsSaveLead(
+      integrationId: $integrationId
+      formId: $formId
+      submissions: $submissions
+      browserInfo: $browserInfo
+      cachedCustomerId: $cachedCustomerId
+    ) {
+      status
+      errors {
+        fieldId
+        code
+        text
+      }
+    }
+  }
+`;
+
+export {
+  connect,
+  widgetsInsertMessage,
+  widgetsSaveCustomerGetNotified,
+  widgetsLeadConnect,
+  widgetsSaveLead,
+};

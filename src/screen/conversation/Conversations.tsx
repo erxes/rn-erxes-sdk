@@ -14,18 +14,13 @@ import dayjs from 'dayjs';
 import FAB from '../../components/FAB';
 import AppContext from '../../context/Context';
 import Avatar from '../../components/Avatar';
+import { PlusIcon } from '../../icons/icons';
 
 const Conversations = () => {
   const value = useContext(AppContext);
 
-  const {
-    customerId,
-    visitorId,
-    newChatIcon,
-    bgColor,
-    integrationId,
-    setConversationId,
-  } = value;
+  const { customerId, visitorId, bgColor, integrationId, setConversationId } =
+    value;
 
   console.log({
     customerId,
@@ -127,7 +122,7 @@ const Conversations = () => {
           setConversationId('');
         }}
         backgroundColor={bgColor}
-        icon={newChatIcon}
+        icon={<PlusIcon size={24} />}
       />
     </View>
   );
