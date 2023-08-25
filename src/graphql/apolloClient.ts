@@ -11,7 +11,6 @@ import { createClient } from 'graphql-ws';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 
 const baseUrl = 'office.erxes.io/gateway';
-// const baseUrl = 'localhost:4000';
 
 export const apiUrl = `https://${baseUrl}`;
 

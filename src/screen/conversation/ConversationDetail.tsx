@@ -23,7 +23,6 @@ import { conversationMessageInserted } from '../../graphql/subscription';
 import { getAttachmentUrl } from '../../utils/utils';
 import AppContext from '../../context/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ArrowLeft } from '../../icons/icons';
 
 const ConversationDetail = () => {
   const value = useContext(AppContext);
@@ -36,6 +35,8 @@ const ConversationDetail = () => {
     customerId,
     visitorId,
     setConnection,
+    //
+    backIcon,
   } = value;
 
   const [messages, setMessages] = React.useState<any>([]);
@@ -180,6 +181,7 @@ const ConversationDetail = () => {
         brand={brand}
         bgColor={bgColor}
         users={data?.widgetsConversationDetail?.participatedUsers}
+        backIcon={backIcon}
       />
       <View style={{ backgroundColor: 'rgba(215,215,215,.7)', flex: 1 }}>
         {renderContent()}
@@ -199,7 +201,7 @@ const ConversationDetail = () => {
 export default ConversationDetail;
 
 const Header = (props: any) => {
-  const { brand, bgColor, users } = props;
+  const { brand, bgColor, users, backIcon } = props;
 
   const value = useContext(AppContext);
 
@@ -236,7 +238,7 @@ const Header = (props: any) => {
               },
             ]}
           >
-            <ArrowLeft size={24} />
+            {backIcon}
           </TouchableOpacity>
           <View
             style={[
@@ -284,7 +286,7 @@ const Header = (props: any) => {
             },
           ]}
         >
-          <ArrowLeft size={24} />
+          {backIcon}
         </TouchableOpacity>
         <View style={[styles.title]}>
           <Text style={{ fontWeight: '600', fontSize: 16 }}>{brand?.name}</Text>

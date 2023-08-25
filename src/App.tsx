@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import 'react-native-get-random-values';
 import React, { useEffect } from 'react';
 import { ApolloProvider } from '@apollo/client';
@@ -13,6 +14,9 @@ export type PropTypes = {
   email?: string;
   onBack?: () => void;
   showWidget: boolean;
+  backIcon?: any;
+  newChatIcon?: any;
+  sendIcon?: any;
 };
 
 const ErxesSDK: React.FC<PropTypes> = ({
@@ -20,6 +24,9 @@ const ErxesSDK: React.FC<PropTypes> = ({
   email = null,
   onBack = () => {},
   showWidget = false,
+  backIcon,
+  newChatIcon,
+  sendIcon,
 }) => {
   const [connection, setConnection] = React.useState<any>({
     cachedCustomerId: null,
@@ -27,8 +34,6 @@ const ErxesSDK: React.FC<PropTypes> = ({
   });
 
   const [show, setShow] = React.useState<boolean>(showWidget);
-
-  console.log(showWidget);
 
   const props = {
     brandCode,
@@ -38,6 +43,10 @@ const ErxesSDK: React.FC<PropTypes> = ({
     setConnection,
     showWidget,
     setShow,
+    // icons
+    backIcon,
+    newChatIcon,
+    sendIcon,
   };
 
   useEffect(() => {

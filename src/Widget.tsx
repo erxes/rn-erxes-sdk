@@ -16,6 +16,10 @@ const Widget = (props: any) => {
     setConnection,
     showWidget,
     setShow,
+    // Icons
+    backIcon,
+    newChatIcon,
+    sendIcon,
   } = props;
 
   const [response, setResponse] = React.useState<any>(null);
@@ -82,6 +86,11 @@ const Widget = (props: any) => {
 
         //
         setShow,
+        // Icons
+
+        backIcon,
+        newChatIcon,
+        sendIcon,
       }}
     >
       <View style={styles.container}>

@@ -10,7 +10,6 @@ import React, { useContext } from 'react';
 import Social from './Social';
 import Supporters from './Supporters';
 import AppContext from '../../context/Context';
-import { ArrowLeft, CloseIcon } from '../../icons/icons';
 
 const Greetings = () => {
   const value = useContext(AppContext);
@@ -24,6 +23,8 @@ const Greetings = () => {
     integrationId,
     showWidget,
     setShow,
+    //
+    backIcon,
   } = value;
 
   return (
@@ -40,7 +41,7 @@ const Greetings = () => {
             },
           ]}
         >
-          <CloseIcon size={24} />
+          {backIcon}
         </TouchableOpacity>
       ) : hasBack ? (
         <TouchableOpacity
@@ -54,7 +55,7 @@ const Greetings = () => {
             },
           ]}
         >
-          <ArrowLeft size={24} />
+          {backIcon}
         </TouchableOpacity>
       ) : null}
       <View style={[styles.title]}>

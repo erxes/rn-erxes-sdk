@@ -127,15 +127,12 @@ export default Widget;
 
 ### Properties
 
-| Prop              | Default | Required |
-| ----------------- | ------- | -------- |
-| **`brandCode`**   | `None`  | True     |
-| **`email`**       | `Null`  | False    |
-| **`hasBack`**     | `false` | False    |
-| **`onBack`**      | `None`  | False    |
-| **`backIcon`**    | `None`  | True     |
-| **`newChatIcon`** | `None`  | True     |
-| **`sendIcon`**    | `None`  | True     |
+| Prop             | Default | Required |
+| ---------------- | ------- | -------- |
+| **`brandCode`**  | `None`  | True     |
+| **`email`**      | `Null`  | False    |
+| **`onBack`**     | `None`  | False    |
+| **`showWidget`** | `false` | True     |
 
 ## Become a partner
 

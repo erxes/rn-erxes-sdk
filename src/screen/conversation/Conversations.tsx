@@ -14,13 +14,19 @@ import dayjs from 'dayjs';
 import FAB from '../../components/FAB';
 import AppContext from '../../context/Context';
 import Avatar from '../../components/Avatar';
-import { PlusIcon } from '../../icons/icons';
 
 const Conversations = () => {
   const value = useContext(AppContext);
 
-  const { customerId, visitorId, bgColor, integrationId, setConversationId } =
-    value;
+  const {
+    customerId,
+    visitorId,
+    bgColor,
+    integrationId,
+    setConversationId,
+    //
+    newChatIcon,
+  } = value;
 
   const { data, loading, refetch } = useQuery(widgetsConversations, {
     variables: {
@@ -116,7 +122,7 @@ const Conversations = () => {
           setConversationId('');
         }}
         backgroundColor={bgColor}
-        icon={<PlusIcon size={24} />}
+        icon={newChatIcon}
       />
     </View>
   );

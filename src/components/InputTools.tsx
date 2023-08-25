@@ -1,10 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { SendIcon } from '../../src/icons/icons';
 
 const InputTools: React.FC<any> = (props: any) => {
-  const { onSend, bgColor } = props;
+  const { onSend, bgColor, sendIcon } = props;
 
   const [input, onInput] = useState<string>('');
 
@@ -39,7 +38,7 @@ const InputTools: React.FC<any> = (props: any) => {
           onInput('');
         }}
       >
-        <SendIcon size={24} />
+        {sendIcon}
       </TouchableOpacity>
     </View>
   );
