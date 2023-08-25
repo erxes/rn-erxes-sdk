@@ -11,13 +11,11 @@ const Widget = (props: any) => {
   const {
     brandCode,
     email,
-    hasBack,
     onBack,
     connection,
     setConnection,
-    backIcon,
-    newChatIcon,
-    sendIcon,
+    showWidget,
+    setShow,
   } = props;
 
   const [response, setResponse] = React.useState<any>(null);
@@ -62,11 +60,9 @@ const Widget = (props: any) => {
         //Props
         email,
         brandCode,
-        hasBack,
+        hasBack: showWidget ? false : true,
         onBack,
-        backIcon,
-        newChatIcon,
-        sendIcon,
+        showWidget,
         //Ui Options
         bgColor:
           response?.data?.widgetsMessengerConnect?.uiOptions?.color ||
@@ -83,6 +79,9 @@ const Widget = (props: any) => {
         setConversationId,
         // Connection
         setConnection,
+
+        //
+        setShow,
       }}
     >
       <View style={styles.container}>

@@ -5,41 +5,39 @@ import ClientProvider from './graphql/apolloClient';
 import Widget from './Widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ObjectId } from 'bson';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import images from './assets/images';
 
 export type PropTypes = {
   brandCode: string;
   email?: string;
-  hasBack?: boolean;
   onBack?: () => void;
-  backIcon?: any;
-  newChatIcon: any;
-  sendIcon?: any;
+  showWidget: boolean;
 };
 
 const ErxesSDK: React.FC<PropTypes> = ({
   brandCode,
   email = null,
-  hasBack = false,
   onBack = () => {},
-  backIcon,
-  newChatIcon,
-  sendIcon,
+  showWidget = false,
 }) => {
   const [connection, setConnection] = React.useState<any>({
     cachedCustomerId: null,
     visitorId: null,
   });
 
+  const [show, setShow] = React.useState<boolean>(showWidget);
+
+  console.log(showWidget);
+
   const props = {
     brandCode,
     email,
-    hasBack,
     onBack,
     connection,
-    backIcon,
-    newChatIcon,
-    sendIcon,
     setConnection,
+    showWidget,
+    setShow,
   };
 
   useEffect(() => {
@@ -64,6 +62,23 @@ const ErxesSDK: React.FC<PropTypes> = ({
       });
   }, []);
 
+  if (show) {
+    return (
+      <View style={{ flex: 1 }}>
+        <TouchableOpacity
+          style={[styles.widget]}
+          onPress={() => setShow(false)}
+        >
+          <Image
+            source={images.logo}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <ApolloProvider client={ClientProvider()}>
       <Widget {...props} />
@@ -72,3 +87,27 @@ const ErxesSDK: React.FC<PropTypes> = ({
 };
 
 export default ErxesSDK;
+
+const styles = StyleSheet.create({
+  widget: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    height: 60,
+    width: 60,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    zIndex: 3,
+    shadowColor: '#2F1F69',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    backgroundColor: '#2F1F69',
+  },
+  image: { width: 50, height: 50, borderRadius: 90 },
+});
