@@ -1,46 +1,5 @@
 import { gql } from '@apollo/client';
 
-const userDetailFields = `
-  avatar
-  fullName
-`;
-
-const messageFields = `
-  _id
-  conversationId
-  customerId
-  user {
-    _id
-    details {
-      ${userDetailFields}
-    }
-  }
-  content
-  createdAt
-  internal
-  fromBot
-  contentType
-  videoCallData {
-    url
-    status
-  }
-  engageData {
-    content
-    kind
-    sentAs
-    messageId
-    brandId
-  }
-  botData
-  messengerAppData
-  attachments {
-    url
-    name
-    size
-    type
-  }
-`;
-
 const connect = gql`
   mutation connect(
     $brandCode: String!
