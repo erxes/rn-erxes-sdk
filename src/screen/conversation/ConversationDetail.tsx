@@ -37,6 +37,8 @@ const ConversationDetail = () => {
     setConnection,
     //
     backIcon,
+    //
+    subDomain,
   } = value;
 
   const [messages, setMessages] = React.useState<any>([]);
@@ -182,6 +184,7 @@ const ConversationDetail = () => {
         bgColor={bgColor}
         users={data?.widgetsConversationDetail?.participatedUsers}
         backIcon={backIcon}
+        subDomain={subDomain}
       />
       <View style={{ backgroundColor: 'rgba(215,215,215,.7)', flex: 1 }}>
         {renderContent()}
@@ -201,7 +204,7 @@ const ConversationDetail = () => {
 export default ConversationDetail;
 
 const Header = (props: any) => {
-  const { brand, bgColor, users, backIcon } = props;
+  const { brand, bgColor, users, backIcon, subDomain } = props;
 
   const value = useContext(AppContext);
 
@@ -210,7 +213,7 @@ const Header = (props: any) => {
   if (users?.length > 0) {
     let source;
     if (users[0]?.details?.avatar) {
-      source = { uri: getAttachmentUrl(users[0]?.details?.avatar) };
+      source = { uri: getAttachmentUrl(users[0]?.details?.avatar, subDomain) };
     } else {
       source = require('../../assets/images/avatar.png');
     }

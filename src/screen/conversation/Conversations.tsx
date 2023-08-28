@@ -30,9 +30,9 @@ const Conversations = () => {
 
   const { data, loading, refetch } = useQuery(widgetsConversations, {
     variables: {
-      customerId: customerId ? customerId : null,
-      visitorId: customerId ? null : visitorId,
       integrationId,
+      customerId: customerId || null,
+      visitorId: customerId ? null : visitorId,
     },
   });
 

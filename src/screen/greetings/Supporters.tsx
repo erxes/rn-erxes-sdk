@@ -1,11 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 import { View, Image, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useQuery } from '@apollo/client';
 import { widgetsMessengerSupporters } from '../../graphql/query';
+import AppContext from '../../context/Context';
+import { getAttachmentUrl } from '../../utils/utils';
 
 const Supporters = (props: any) => {
   const { integrationId } = props;
+
+  const value = useContext(AppContext);
+
+  const { subDomain } = value;
 
   const { data, loading } = useQuery(widgetsMessengerSupporters, {
     variables: {
@@ -21,6 +27,14 @@ const Supporters = (props: any) => {
 
   const renderSupporter = (supporter: any, index: number) => {
     const color = supporter?.isOnline ? '#3ccc38' : 'white';
+    let source;
+    if (supporter?.details?.avatar) {
+      source = {
+        uri: getAttachmentUrl(supporter?.details?.avatar, subDomain),
+      };
+    } else {
+      source = require('../../assets/images/avatar.png');
+    }
     return (
       <View
         key={index}
@@ -28,11 +42,7 @@ const Supporters = (props: any) => {
           marginLeft: index === 0 ? 0 : 10,
         }}
       >
-        <Image
-          source={{ uri: supporter?.details?.avatar }}
-          style={styles.image}
-          resizeMode="center"
-        />
+        <Image source={source} style={styles.image} resizeMode="center" />
         <View style={[{ backgroundColor: color }, styles.activeStatus]} />
       </View>
     );

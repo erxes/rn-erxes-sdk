@@ -1,8 +1,7 @@
-const url = 'https://office.erxes.io/gateway';
-
-export function getAttachmentUrl(value: string) {
+export function getAttachmentUrl(value: string, subDomain: string) {
+  const baseUrl = `https://${subDomain}/gateway`;
   if (value && !value.includes('https')) {
-    return url + '/read-file?key=' + value;
+    return baseUrl + '/read-file?key=' + value;
   }
   return value;
 }

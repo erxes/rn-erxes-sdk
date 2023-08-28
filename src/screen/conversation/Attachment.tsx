@@ -1,12 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, { useContext } from 'react';
 import { Dimensions, Image, Text, View } from 'react-native';
 import { getAttachmentUrl } from '../../utils/utils';
+import AppContext from '../../context/Context';
 
 const fullWidth = Dimensions.get('window');
 const width = fullWidth.width / 2;
 
 const Attachment: React.FC<any> = ({ images }) => {
+  const value = useContext(AppContext);
+
+  const { subDomain } = value;
   if (!images || images.length === 0) {
     return null;
   }
@@ -16,7 +20,7 @@ const Attachment: React.FC<any> = ({ images }) => {
     uri: string,
     index: number
   ) => {
-    const url = getAttachmentUrl(uri);
+    const url = getAttachmentUrl(uri, subDomain);
     return (
       <View key={index}>
         <Image

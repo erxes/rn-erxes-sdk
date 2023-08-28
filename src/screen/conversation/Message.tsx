@@ -9,6 +9,17 @@ import Avatar from '../../components/Avatar';
 
 const { width } = Dimensions.get('window');
 
+const isDarkColor = (hex: any) => {
+  'worklet';
+  // https://stackoverflow.com/a/69353003/9999202
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  // https://stackoverflow.com/a/58270890/9999202
+  const hsp = Math.sqrt(0.299 * r ** 2 + 0.587 * g ** 2 + 0.114 * b ** 2);
+  return hsp < 170;
+};
+
 const Message = (props: any) => {
   const { item, bgColor } = props;
 
@@ -41,7 +52,14 @@ const Message = (props: any) => {
           {position === 'left' ? (
             renderContent()
           ) : (
-            <Text style={{ paddingVertical: 12 }}>{item?.content}</Text>
+            <Text
+              style={{
+                paddingVertical: 12,
+                color: isDarkColor(bgColor) ? '#fff' : '#000',
+              }}
+            >
+              {item?.content}
+            </Text>
           )}
           {item?.attachments?.length > 0 ? (
             <Attachment images={item?.attachments} />

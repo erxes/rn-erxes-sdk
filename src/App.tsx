@@ -1,22 +1,21 @@
-/* eslint-disable react-native/no-inline-styles */
 import 'react-native-get-random-values';
 import React, { useEffect } from 'react';
-import { ApolloProvider } from '@apollo/client';
-import ClientProvider from './graphql/apolloClient';
 import Widget from './Widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ObjectId } from 'bson';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import images from './assets/images';
+import ApolloContainer from './graphql/ApolloContainer';
 
 export type PropTypes = {
   brandCode: string;
+  subDomain: string;
+  showWidget: boolean;
   email?: string;
   onBack?: () => void;
-  showWidget: boolean;
   backIcon?: any;
   newChatIcon?: any;
   sendIcon?: any;
+  phone?: any;
+  data?: any;
 };
 
 const ErxesSDK: React.FC<PropTypes> = ({
@@ -27,6 +26,9 @@ const ErxesSDK: React.FC<PropTypes> = ({
   backIcon,
   newChatIcon,
   sendIcon,
+  phone,
+  data,
+  subDomain,
 }) => {
   const [connection, setConnection] = React.useState<any>({
     cachedCustomerId: null,
@@ -37,16 +39,22 @@ const ErxesSDK: React.FC<PropTypes> = ({
 
   const props = {
     brandCode,
+    subDomain,
     email,
     onBack,
     connection,
     setConnection,
     showWidget,
-    setShow,
     // icons
     backIcon,
     newChatIcon,
     sendIcon,
+    // tracking
+    phone,
+    data,
+    // launcherOptions
+    show,
+    setShow,
   };
 
   useEffect(() => {
@@ -71,52 +79,15 @@ const ErxesSDK: React.FC<PropTypes> = ({
       });
   }, []);
 
-  if (show) {
-    return (
-      <View style={{ flex: 1 }}>
-        <TouchableOpacity
-          style={[styles.widget]}
-          onPress={() => setShow(false)}
-        >
-          <Image
-            source={images.logo}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
-    );
+  if (!connection?.cachedCustomerId && !connection?.visitorId) {
+    return null;
   }
 
   return (
-    <ApolloProvider client={ClientProvider()}>
+    <ApolloContainer subDomain={subDomain}>
       <Widget {...props} />
-    </ApolloProvider>
+    </ApolloContainer>
   );
 };
 
 export default ErxesSDK;
-
-const styles = StyleSheet.create({
-  widget: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    height: 60,
-    width: 60,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-    zIndex: 3,
-    shadowColor: '#2F1F69',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
-    backgroundColor: '#2F1F69',
-  },
-  image: { width: 50, height: 50, borderRadius: 90 },
-});

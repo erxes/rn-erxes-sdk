@@ -1,12 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
 import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { getAttachmentUrl } from '../utils/utils';
 import { Image } from 'react-native';
+import AppContext from '../context/Context';
 
 const Avatar = (props: any) => {
   const { user, bgColor } = props;
-  const url = getAttachmentUrl(user?.details?.avatar);
+  const value = useContext(AppContext);
+
+  const { subDomain } = value;
+  const url = getAttachmentUrl(user?.details?.avatar, subDomain);
   if (!url) {
     const firstNameLetter = user?.details?.fullName
       ?.split(' ')[0]
