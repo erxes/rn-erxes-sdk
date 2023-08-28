@@ -117,7 +117,7 @@ const Widget = (props: any) => {
 
   if (show) {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, zIndex: 999 }}>
         <TouchableOpacity
           style={[
             styles.widget,
@@ -126,8 +126,8 @@ const Widget = (props: any) => {
             },
           ]}
           onPress={() => {
-            AsyncStorage.removeItem('cachedCustomerId');
-            // setShow(false);
+            // AsyncStorage.removeItem('cachedCustomerId');
+            setShow(false);
           }}
         >
           <Image
