@@ -158,10 +158,25 @@ const widgetsConversationDetail = gql`
   }
 `;
 
+const widgetsTotalUnreadCount = gql`
+  query widgetsTotalUnreadCount(
+    $integrationId: String!
+    $customerId: String
+    $visitorId: String
+  ) {
+    widgetsTotalUnreadCount(
+      integrationId: $integrationId
+      customerId: $customerId
+      visitorId: $visitorId
+    )
+  }
+`;
+
 export {
   widgetsMessengerSupporters,
   widgetsConversations,
   widgetsConversationDetail,
   knowledgeBaseTopicDetail,
   knowledgeBaseCategoryDetail,
+  widgetsTotalUnreadCount,
 };

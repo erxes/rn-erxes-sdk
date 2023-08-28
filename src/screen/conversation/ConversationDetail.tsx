@@ -22,7 +22,6 @@ import { widgetsInsertMessage } from '../../graphql/mutation';
 import { conversationMessageInserted } from '../../graphql/subscription';
 import { getAttachmentUrl } from '../../utils/utils';
 import AppContext from '../../context/Context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ConversationDetail = () => {
   const value = useContext(AppContext);
@@ -34,7 +33,6 @@ const ConversationDetail = () => {
     integrationId,
     customerId,
     visitorId,
-    setConnection,
     //
     backIcon,
     sendIcon,
@@ -123,15 +121,6 @@ const ConversationDetail = () => {
           return console.log(res.errors);
         }
         if (res.data.widgetsInsertMessage) {
-          if (!customerId) {
-            const tempCustomerId = res.data.widgetsInsertMessage.customerId;
-            const jsonValue = JSON.stringify(tempCustomerId);
-            AsyncStorage.setItem('cachedCustomerId', jsonValue);
-            setConnection({
-              visitorId,
-              cachedCustomerId: tempCustomerId,
-            });
-          }
           let shouldAdd = messages?.length === 0;
           if (!shouldAdd) {
             shouldAdd = res.data.widgetsInsertMessage._id !== messages[0]._id;

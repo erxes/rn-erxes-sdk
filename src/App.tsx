@@ -16,10 +16,12 @@ export type PropTypes = {
   sendIcon?: any;
   phone?: any;
   data?: any;
+  properties?: any;
 };
 
 const ErxesSDK: React.FC<PropTypes> = ({
   brandCode,
+  subDomain,
   email = null,
   onBack = () => {},
   showWidget = false,
@@ -28,7 +30,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
   sendIcon,
   phone,
   data,
-  subDomain,
+  properties,
 }) => {
   const [connection, setConnection] = React.useState<any>({
     cachedCustomerId: null,
@@ -52,6 +54,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
     // tracking
     phone,
     data,
+    properties,
     // launcherOptions
     show,
     setShow,
