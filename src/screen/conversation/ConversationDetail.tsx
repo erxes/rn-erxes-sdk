@@ -37,13 +37,12 @@ const ConversationDetail = () => {
     setConnection,
     //
     backIcon,
+    sendIcon,
     //
     subDomain,
   } = value;
 
   const [messages, setMessages] = React.useState<any>([]);
-
-  // console.log(messages);
 
   const { data, loading, subscribeToMore } = useQuery(
     widgetsConversationDetail,
@@ -193,7 +192,7 @@ const ConversationDetail = () => {
           keyboardVerticalOffset={100}
         >
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <InputTools onSend={onSend} bgColor={bgColor} />
+            <InputTools onSend={onSend} bgColor={bgColor} sendIcon={sendIcon} />
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </View>
