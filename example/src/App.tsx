@@ -33,7 +33,7 @@ export default function App() {
         brandCode={brandCode}
         subDomain={subDomain}
         onBack={() => console.log('onBack')}
-        showWidget={true}
+        showWidget={false}
         phone="94205640"
         data={data}
         properties={properties}
