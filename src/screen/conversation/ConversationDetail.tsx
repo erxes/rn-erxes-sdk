@@ -22,6 +22,7 @@ import { widgetsInsertMessage } from '../../graphql/mutation';
 import { conversationMessageInserted } from '../../graphql/subscription';
 import { getAttachmentUrl } from '../../utils/utils';
 import AppContext from '../../context/Context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ConversationDetail = () => {
   const value = useContext(AppContext);
@@ -220,6 +221,7 @@ const Header = (props: any) => {
         >
           <TouchableOpacity
             onPress={() => {
+              AsyncStorage.removeItem('conversationId');
               setConversationId(null);
             }}
             style={[
@@ -268,6 +270,7 @@ const Header = (props: any) => {
       >
         <TouchableOpacity
           onPress={() => {
+            AsyncStorage.removeItem('conversationId');
             setConversationId(null);
           }}
           style={[

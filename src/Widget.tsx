@@ -36,12 +36,14 @@ const Widget = (props: any) => {
     setShow,
     //domain
     subDomain,
+    //
+    cachedConversationId,
   } = props;
 
   const [visibleLauncher, setVisibleLauncher] = React.useState<boolean>(false);
   const [response, setResponse] = React.useState<any>(null);
   const [conversationId, setConversationId] = React.useState<string | null>(
-    null
+    cachedConversationId
   );
 
   const { data: dataUnreadCount } = useQuery(widgetsTotalUnreadCount, {

@@ -27,6 +27,7 @@ const InputTools: React.FC<any> = (props: any) => {
         onChangeText={(text) => {
           onInput(text);
         }}
+        autoCorrect={false}
         multiline={true}
         numberOfLines={5}
         // returnKeyType="send"

@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import FAB from '../../components/FAB';
 import AppContext from '../../context/Context';
 import Avatar from '../../components/Avatar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Conversations = () => {
   const value = useContext(AppContext);
@@ -59,6 +60,7 @@ const Conversations = () => {
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => {
+          AsyncStorage.setItem('conversationId', item._id);
           setConversationId(item._id);
         }}
       >

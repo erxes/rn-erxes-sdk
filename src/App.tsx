@@ -32,12 +32,61 @@ const ErxesSDK: React.FC<PropTypes> = ({
   data,
   properties,
 }) => {
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [connection, setConnection] = React.useState<any>({
     cachedCustomerId: null,
     visitorId: null,
   });
-
+  const [cachedConversationId, setCachedConversationId] =
+    React.useState<any>(null);
   const [show, setShow] = React.useState<boolean>(showWidget);
+
+  useEffect(() => {
+    let visitorId: any;
+    let tempCustomerId = '';
+    setLoading(true);
+    AsyncStorage.getItem('cachedCustomerId')
+      .then((value) => {
+        if (value !== null) {
+          tempCustomerId = JSON.parse(value);
+        }
+        if (!tempCustomerId) {
+          // declare the data fetching function
+          visitorId = new ObjectId();
+        }
+        setConnection({
+          cachedCustomerId: tempCustomerId ? tempCustomerId : null,
+          visitorId: visitorId?.toString(),
+        });
+        AsyncStorage.getItem('conversationId')
+          .then((v) => {
+            if (v !== null) {
+              setCachedConversationId(v);
+            }
+            setLoading(false);
+          })
+          .catch((e) => {
+            setLoading(false);
+            console.log('Failed on cachedConversationId', e.message);
+          });
+      })
+      .catch((e) => {
+        setConnection({
+          cachedCustomerId: null,
+          visitorId: new ObjectId(),
+        });
+        setLoading(false);
+        console.log('Failed on cachedCustomerId', e.message);
+      });
+  }, []);
+
+  if (!connection?.cachedCustomerId && !connection?.visitorId) {
+    return null;
+  }
+
+  if (loading) {
+    return null;
+  }
 
   const props = {
     brandCode,
@@ -58,33 +107,9 @@ const ErxesSDK: React.FC<PropTypes> = ({
     // launcherOptions
     show,
     setShow,
+    //
+    cachedConversationId,
   };
-
-  useEffect(() => {
-    let visitorId: any;
-    let tempCustomerId = '';
-    AsyncStorage.getItem('cachedCustomerId')
-      .then((value) => {
-        if (value !== null) {
-          tempCustomerId = JSON.parse(value);
-        }
-        if (!tempCustomerId) {
-          // declare the data fetching function
-          visitorId = new ObjectId();
-        }
-        setConnection({
-          cachedCustomerId: tempCustomerId ? tempCustomerId : null,
-          visitorId: visitorId?.toString(),
-        });
-      })
-      .catch((e) => {
-        console.log('checkIntro', e.message);
-      });
-  }, []);
-
-  if (!connection?.cachedCustomerId && !connection?.visitorId) {
-    return null;
-  }
 
   return (
     <ApolloContainer subDomain={subDomain}>

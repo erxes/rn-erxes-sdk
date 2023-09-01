@@ -1,6 +1,6 @@
 {
   "name": "rn-erxes-sdk",
-  "version": "0.1.20",
+  "version": "0.1.23",
   "description": "react-native erxes sdk",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
