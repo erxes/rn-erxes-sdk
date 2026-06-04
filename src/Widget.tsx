@@ -17,6 +17,7 @@ import { Text } from 'react-native';
 
 const Widget = (props: any) => {
   const {
+    integrationId: connectIntegrationId,
     brandCode,
     email,
     onBack,
@@ -62,7 +63,7 @@ const Widget = (props: any) => {
   useEffect(() => {
     connectMutation({
       variables: {
-        brandCode,
+        integrationId: connectIntegrationId || brandCode,
         email,
         cachedCustomerId: connection?.cachedCustomerId,
         visitorId: connection?.visitorId,

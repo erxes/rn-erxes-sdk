@@ -6,7 +6,8 @@ import { ObjectId } from 'bson';
 import ApolloContainer from './graphql/ApolloContainer';
 
 export type PropTypes = {
-  brandCode: string;
+  integrationId: string;
+  brandCode?: string;
   subDomain: string;
   showWidget: boolean;
   email?: string;
@@ -20,6 +21,7 @@ export type PropTypes = {
 };
 
 const ErxesSDK: React.FC<PropTypes> = ({
+  integrationId,
   brandCode,
   subDomain,
   email = null,
@@ -89,6 +91,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
   }
 
   const props = {
+    integrationId: integrationId || brandCode,
     brandCode,
     subDomain,
     email,

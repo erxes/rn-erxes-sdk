@@ -155,7 +155,7 @@ interface Props {
 const Widget = () => {
   return (
     <ErxesSDK
-      brandCode={brandCode}
+      integrationId={integrationId}
     />
   );
 };
@@ -166,7 +166,8 @@ export default Widget;
 
 | Prop             | Default | Required |
 | ---------------- | ------- | -------- |
-| **`brandCode`**  | `None`  | True     |
+| **`integrationId`** | `None`  | True     |
+| **`brandCode`**  | `None`  | False    |
 | **`email`**      | `Null`  | False    |
 | **`onBack`**     | `None`  | False    |
 | **`showWidget`** | `false` | True     |

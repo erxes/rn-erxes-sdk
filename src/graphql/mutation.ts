@@ -2,26 +2,26 @@ import { gql } from '@apollo/client';
 
 const connect = gql`
   mutation connect(
-    $brandCode: String!
+    $integrationId: String!
+    $visitorId: String
+    $cachedCustomerId: String
     $email: String
+    $isUser: Boolean
     $phone: String
     $code: String
-    $isUser: Boolean
     $data: JSON
     $companyData: JSON
-    $cachedCustomerId: String
-    $visitorId: String
   ) {
     widgetsMessengerConnect(
-      brandCode: $brandCode
+      integrationId: $integrationId
+      visitorId: $visitorId
+      cachedCustomerId: $cachedCustomerId
       email: $email
+      isUser: $isUser
       phone: $phone
       code: $code
-      isUser: $isUser
       data: $data
       companyData: $companyData
-      cachedCustomerId: $cachedCustomerId
-      visitorId: $visitorId
     ) {
       integrationId
       messengerData
@@ -29,9 +29,13 @@ const connect = gql`
       uiOptions
       customerId
       visitorId
-      brand {
-        name
-        description
+      ticketConfig
+      customer {
+        _id
+        firstName
+        lastName
+        phones
+        emails
         __typename
       }
       __typename
