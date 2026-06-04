@@ -113,6 +113,10 @@ const Widget = (props: any) => {
   }, [connection]);
 
   const integrationId = response?.data?.widgetsMessengerConnect?.integrationId;
+  const uiOptions = response?.data?.widgetsMessengerConnect?.uiOptions;
+  const bgColor = uiOptions?.primary?.DEFAULT || uiOptions?.color || '#5629b6';
+  const textColor =
+    uiOptions?.primary?.foreground || uiOptions?.textColor || '#fff';
 
   if (!integrationId) {
     return null;
@@ -165,12 +169,8 @@ const Widget = (props: any) => {
         onBack,
         showWidget,
         //Ui Options
-        bgColor:
-          response?.data?.widgetsMessengerConnect?.uiOptions?.color ||
-          '#5629b6',
-        textColor:
-          response?.data?.widgetsMessengerConnect?.uiOptions?.textColor ||
-          '#fff',
+        bgColor,
+        textColor,
         //Datas
         brand: response?.data?.widgetsMessengerConnect?.brand,
         greetings: response?.data?.widgetsMessengerConnect?.messengerData,
