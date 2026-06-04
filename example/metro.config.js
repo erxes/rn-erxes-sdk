@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, '..');
 
 const modules = Object.keys({
   ...pak.peerDependencies,
+  'react-native-web': '*',
 });
 
 const defaultConfig = getDefaultConfig(__dirname);
