@@ -9,25 +9,23 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.15",
+    "@apollo/client": "^3.14.1",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "dayjs": "^1.11.8",
-    "expo": "~48.0.18",
-    "expo-status-bar": "~1.4.4",
+    "expo": "^54.0.0",
+    "expo-status-bar": "~3.0.9",
+    "graphql": "^16.6.0",
     "graphql-ws": "^5.13.1",
-    "react": "18.2.0",
-    "react-apollo": "^3.1.5",
-    "react-dom": "18.2.0",
-    "react-native": "0.71.8",
-    "react-native-web": "~0.18.10",
-    "react-native-webview": "11.26.0",
-    "rn-erxes-sdk": "^0.1.9"
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-get-random-values": "~1.11.0",
+    "react-native-web": "^0.21.0",
+    "react-native-webview": "13.15.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@expo/webpack-config": "18.0.1",
-    "babel-loader": "^8.1.0",
-    "babel-plugin-module-resolver": "^4.1.0",
-    "react-native-vector-icons": "^9.2.0"
+    "@babel/core": "^7.26.0",
+    "babel-plugin-module-resolver": "^4.1.0"
   },
   "private": true
 }
