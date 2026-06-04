@@ -113,6 +113,10 @@ const widgetsConversationDetail = gql`
           details {
             avatar
             fullName
+            description
+            location
+            position
+            shortName
             __typename
           }
           __typename
@@ -122,12 +126,16 @@ const widgetsConversationDetail = gql`
         internal
         fromBot
         contentType
-        videoCallData {
-          url
-          status
+        engageData {
+          content
+          kind
+          sentAs
+          messageId
+          brandId
           __typename
         }
         botData
+        messengerAppData
         attachments {
           url
           name
@@ -137,7 +145,6 @@ const widgetsConversationDetail = gql`
         }
         __typename
       }
-      operatorStatus
       isOnline
       participatedUsers {
         _id
@@ -148,11 +155,10 @@ const widgetsConversationDetail = gql`
           description
           position
           location
-          __typename
         }
         links
-        __typename
       }
+      persistentMenus
       __typename
     }
   }
