@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { ErxesSDK } from 'rn-erxes-sdk';
 
 export default function App() {
-  const brandCode = '5fkS4v';
-  const subDomain = 'office.erxes.io';
+  const integrationId = 'c-Hpgpu3ONYJfi7UsIFYX';
+  const subDomain = 'nominno.next.erxes.io';
 
   const data = {
     firstName: 'First-Name',
@@ -30,7 +30,7 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <ErxesSDK
-        brandCode={brandCode}
+        integrationId={integrationId}
         subDomain={subDomain}
         onBack={() => console.log('onBack')}
         showWidget={false}
