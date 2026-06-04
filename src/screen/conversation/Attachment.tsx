@@ -16,7 +16,7 @@ const Attachment: React.FC<any> = ({ images }) => {
   }
 
   const renderImage = (
-    mWidth: number | string | undefined,
+    mWidth: number | undefined,
     uri: string,
     index: number
   ) => {
