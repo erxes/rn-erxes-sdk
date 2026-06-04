@@ -4,46 +4,39 @@ const conversationMessageInserted = gql`
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
-      attachments {
-        url
-        name
-        type
-        size
-      }
-      botData
-      content
-      contentType
       conversationId
-      createdAt
-      customer {
-        avatar
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-        _id
-        state
-      }
       customerId
-      internal
-      fromBot
       user {
         _id
-        username
         details {
           avatar
           fullName
+          description
+          location
           position
+          shortName
         }
       }
-      userId
-      videoCallData {
+      content
+      createdAt
+      internal
+      fromBot
+      contentType
+      engageData {
+        content
+        kind
+        sentAs
+        messageId
+        brandId
+      }
+      botData
+      messengerAppData
+      attachments {
         url
         name
-        status
-        recordingLinks
+        size
+        type
       }
-      mentionedUserIds
     }
   }
 `;
