@@ -37,9 +37,31 @@ const widgetsConversations = gql`
       content
       createdAt
       participatedUsers {
+        _id
         details {
           avatar
           fullName
+          shortName
+          __typename
+        }
+        __typename
+      }
+      messages {
+        _id
+        content
+        createdAt
+        customerId
+        userId
+        isCustomerRead
+        fromBot
+        user {
+          _id
+          details {
+            avatar
+            fullName
+            shortName
+            __typename
+          }
           __typename
         }
         __typename
@@ -127,9 +149,62 @@ const widgetsTotalUnreadCount = gql`
   }
 `;
 
+// Knowledge base topic details — ported from the web messenger SDK
+// (frontline-widgets GET_KNOWLEDGE_BASE_TOPIC_DETAILS); same backend.
+const knowledgeBaseTopicDetail = gql`
+  query knowledgeBaseTopicDetail($_id: String!) {
+    knowledgeBaseTopicDetail(_id: $_id) {
+      _id
+      title
+      description
+      color
+      code
+      categories {
+        _id
+        title
+        description
+        numOfArticles(status: "publish")
+        countArticles
+        parentCategoryId
+        icon
+        articles(status: "publish") {
+          _id
+          title
+          summary
+          content
+          categoryId
+          modifiedDate
+          publishedAt
+        }
+      }
+      parentCategories {
+        _id
+        title
+        description
+        numOfArticles(status: "publish")
+        parentCategoryId
+        icon
+        childrens {
+          _id
+        }
+        articles {
+          _id
+          title
+          summary
+          content
+          categoryId
+          modifiedDate
+          publishedAt
+        }
+      }
+    }
+  }
+`;
+
 export {
   widgetsMessengerSupporters,
   widgetsConversations,
   widgetsConversationDetail,
   widgetsTotalUnreadCount,
+  knowledgeBaseTopicDetail,
 };

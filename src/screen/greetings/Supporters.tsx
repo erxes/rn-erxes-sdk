@@ -1,17 +1,21 @@
-/* eslint-disable react-native/no-inline-styles */
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import React, { useContext } from 'react';
 import { useQuery } from '@apollo/client';
 import { widgetsMessengerSupporters } from '../../graphql/query';
 import AppContext from '../../context/Context';
 import { getAttachmentUrl } from '../../utils/utils';
+import AvatarWithStatus from '../../components/AvatarWithStatus';
+
+const MAX_VISIBLE = 3;
 
 const Supporters = (props: any) => {
-  const { integrationId } = props;
+  const { integrationId, compact } = props;
+
+  const AVATAR_SIZE = compact ? 28 : 36;
 
   const value = useContext(AppContext);
 
-  const { subDomain } = value;
+  const { subDomain, textColor } = value;
 
   const { data, loading } = useQuery(widgetsMessengerSupporters, {
     variables: {
@@ -23,38 +27,45 @@ const Supporters = (props: any) => {
     return null;
   }
 
-  const supporters = data?.widgetsMessengerSupporters?.supporters;
+  const supporters = (
+    data?.widgetsMessengerSupporters?.supporters || []
+  ).filter((supporter: any) => supporter?.isActive);
 
-  const renderSupporter = (supporter: any, index: number) => {
-    const color = supporter?.isOnline ? '#3ccc38' : 'white';
-    let source;
+  if (supporters.length === 0) {
+    return null;
+  }
+
+  const visible = supporters.slice(0, MAX_VISIBLE);
+  const anyOnline = supporters.some((supporter: any) => supporter?.isOnline);
+
+  const getSource = (supporter: any) => {
     if (supporter?.details?.avatar) {
-      source = {
-        uri: getAttachmentUrl(supporter?.details?.avatar, subDomain),
-      };
-    } else {
-      source = require('../../assets/images/avatar.png');
+      return { uri: getAttachmentUrl(supporter.details.avatar, subDomain) };
     }
-    return (
-      <View
-        key={index}
-        style={{
-          marginLeft: index === 0 ? 0 : 10,
-        }}
-      >
-        <Image source={source} style={styles.image} resizeMode="center" />
-        <View style={[{ backgroundColor: color }, styles.activeStatus]} />
-      </View>
-    );
+    return require('../../assets/images/avatar.png');
   };
 
   return (
-    <View style={{ marginTop: 10, flexDirection: 'row' }}>
-      {supporters
-        ?.filter((supporter: any) => supporter?.isActive)
-        ?.map((supporter: any, index: number) => {
-          return renderSupporter(supporter, index);
-        })}
+    <View style={styles.container}>
+      <View style={styles.avatars}>
+        {visible.map((supporter: any, index: number) => (
+          <AvatarWithStatus
+            key={index}
+            source={getSource(supporter)}
+            size={AVATAR_SIZE}
+            online={supporter?.isOnline}
+            style={[
+              index === 0 ? null : styles.overlap,
+              { zIndex: visible.length - index },
+            ]}
+          />
+        ))}
+      </View>
+      {compact ? null : (
+        <Text style={[styles.label, { color: textColor }]}>
+          {anyOnline ? 'Online support' : 'Support team'}
+        </Text>
+      )}
     </View>
   );
 };
@@ -62,17 +73,21 @@ const Supporters = (props: any) => {
 export default Supporters;
 
 const styles = StyleSheet.create({
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 90,
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  activeStatus: {
-    width: 13,
-    height: 13,
-    borderRadius: 90,
-    position: 'absolute',
-    bottom: 0,
-    left: 35,
+  avatars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  overlap: {
+    marginLeft: -10,
+  },
+  label: {
+    marginLeft: 10,
+    fontSize: 13,
+    fontWeight: '500',
+    opacity: 0.95,
   },
 });

@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { ErxesSDK } from 'rn-erxes-sdk';
 
 export default function App() {
-  const integrationId = 'c-Hpgpu3ONYJfi7UsIFYX';
-  const subDomain = 'nominno.next.erxes.io';
+  const integrationId = '5e8rLNorH96CbrOIfHfqT';
+  const subDomain = 'emtest.next.erxes.io';
 
   const data = {
     firstName: 'First-Name',

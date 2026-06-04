@@ -6,6 +6,8 @@ const conversationMessageInserted = gql`
       _id
       conversationId
       customerId
+      userId
+      isCustomerRead
       user {
         _id
         details {
@@ -61,6 +63,14 @@ const conversationChanged = gql`
     }
   }
 `;
+
+// Bot typing indicator — ported from the web messenger SDK
+// (frontline-widgets conversationBotTypingStatus); same backend.
+const conversationBotTypingStatus = gql`
+  subscription conversationBotTypingStatus($_id: String!) {
+    conversationBotTypingStatus(_id: $_id)
+  }
+`;
 const conversationExternalIntegrationMessageInserted = gql`
   subscription conversationExternalIntegrationMessageInserted {
     conversationExternalIntegrationMessageInserted
@@ -81,4 +91,5 @@ export {
   conversationChanged,
   conversationExternalIntegrationMessageInserted,
   adminMessageInserted,
+  conversationBotTypingStatus,
 };

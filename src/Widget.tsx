@@ -2,19 +2,45 @@
 /* eslint-disable react-native/no-inline-styles */
 import { View, StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
-import { useMutation, useQuery } from '@apollo/client';
-import { connect, widgetsSaveBrowserInfo } from './graphql/mutation';
-import Greetings from './screen/greetings/Greetings';
-import Conversations from './screen/conversation/Conversations';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import {
+  connect,
+  widgetsReadConversationMessages,
+  widgetsSaveBrowserInfo,
+} from './graphql/mutation';
 import AppContext from './context/Context';
 import ConversationDetail from './screen/conversation/ConversationDetail';
+import MessengerShell from './components/MessengerShell';
 import { TouchableOpacity } from 'react-native';
 import { Image } from 'react-native';
 import images from './assets/images';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { widgetsTotalUnreadCount } from './graphql/query';
+import { widgetsConversations } from './graphql/query';
+import {
+  adminMessageInserted,
+  conversationMessageInserted,
+} from './graphql/subscription';
 import { Text } from 'react-native';
 import { getAttachmentUrl } from './utils/utils';
+
+const countUnreadMessages = (conversations: any[] = []) =>
+  conversations.reduce((acc, conversation) => {
+    const messages = conversation?.messages || [];
+    const lastMessage = messages[messages.length - 1];
+
+    if (lastMessage?.isCustomerRead) {
+      return acc;
+    }
+
+    const unreadCount = messages.filter(
+      (message: any) =>
+        !message?.isCustomerRead &&
+        message?.userId !== null &&
+        message?.userId !== undefined
+    ).length;
+
+    return acc + unreadCount;
+  }, 0);
 
 const Widget = (props: any) => {
   const {
@@ -47,19 +73,149 @@ const Widget = (props: any) => {
   const [conversationId, setConversationId] = React.useState<string | null>(
     cachedConversationId
   );
+  const client = useApolloClient();
 
-  const { data: dataUnreadCount } = useQuery(widgetsTotalUnreadCount, {
-    variables: {
-      integrationId: response?.data?.widgetsMessengerConnect?.integrationId,
-      customerId: connection?.cachedCustomerId || null,
-      visitorId: connection?.cachedCustomerId ? null : connection?.visitorId,
-    },
+  const unreadVariables = {
+    integrationId: response?.data?.widgetsMessengerConnect?.integrationId,
+    customerId: connection?.cachedCustomerId || null,
+    visitorId: connection?.cachedCustomerId ? null : connection?.visitorId,
+  };
+
+  const {
+    data: dataUnreadConversations,
+    refetch: refetchUnreadConversations,
+    subscribeToMore: subscribeToUnreadMore,
+  } = useQuery(widgetsConversations, {
+    variables: unreadVariables,
     skip: !response,
     fetchPolicy: 'network-only',
   });
 
+  const totalUnreadCount = React.useMemo(
+    () =>
+      countUnreadMessages(dataUnreadConversations?.widgetsConversations || []),
+    [dataUnreadConversations]
+  );
+
   const [connectMutation] = useMutation(connect);
+  const [readConversationMessages] = useMutation(
+    widgetsReadConversationMessages
+  );
   const [saveBrowserInfo] = useMutation(widgetsSaveBrowserInfo);
+
+  const markConversationRead = React.useCallback(
+    (id?: string | null) => {
+      if (!id) {
+        return Promise.resolve(null);
+      }
+
+      return readConversationMessages({
+        variables: {
+          conversationId: id,
+        },
+      })
+        .then((res) => {
+          refetchUnreadConversations();
+          return res;
+        })
+        .catch((err) => {
+          console.log(err);
+          return null;
+        });
+    },
+    [readConversationMessages, refetchUnreadConversations]
+  );
+
+  useEffect(() => {
+    const conversations = dataUnreadConversations?.widgetsConversations || [];
+
+    if (!conversations.length) {
+      return;
+    }
+
+    const unsubscribes = conversations.map((conversation: any) =>
+      subscribeToUnreadMore({
+        document: conversationMessageInserted,
+        variables: { _id: conversation._id },
+        updateQuery: (prev, { subscriptionData }) => {
+          if (!prev || !subscriptionData.data) {
+            return prev;
+          }
+
+          const newMessage = subscriptionData.data.conversationMessageInserted;
+
+          if (!newMessage) {
+            return prev;
+          }
+
+          const conversationIndex = prev.widgetsConversations.findIndex(
+            (item: any) => item._id === newMessage.conversationId
+          );
+
+          if (conversationIndex === -1) {
+            refetchUnreadConversations();
+            return prev;
+          }
+
+          const currentConversation =
+            prev.widgetsConversations[conversationIndex];
+          const messageExists = currentConversation.messages?.some(
+            (message: any) => message._id === newMessage._id
+          );
+
+          if (messageExists) {
+            return prev;
+          }
+
+          const nextConversations = [...prev.widgetsConversations];
+          nextConversations[conversationIndex] = {
+            ...currentConversation,
+            content: newMessage.content,
+            createdAt: newMessage.createdAt,
+            messages: [...(currentConversation.messages || []), newMessage],
+          };
+
+          return {
+            ...prev,
+            widgetsConversations: nextConversations,
+          };
+        },
+      })
+    );
+
+    return () => {
+      unsubscribes.forEach((unsubscribe: any) => unsubscribe());
+    };
+  }, [
+    dataUnreadConversations?.widgetsConversations,
+    refetchUnreadConversations,
+    subscribeToUnreadMore,
+  ]);
+
+  useEffect(() => {
+    const customerId = connection?.cachedCustomerId;
+
+    if (!customerId) {
+      return;
+    }
+
+    const subscription = client
+      .subscribe({
+        query: adminMessageInserted,
+        variables: { customerId },
+        fetchPolicy: 'network-only',
+      })
+      .subscribe({
+        next() {
+          refetchUnreadConversations();
+        },
+        error(err) {
+          console.log(err);
+        },
+      });
+
+    return () => subscription.unsubscribe();
+  }, [client, connection?.cachedCustomerId, refetchUnreadConversations]);
 
   useEffect(() => {
     connectMutation({
@@ -150,11 +306,13 @@ const Widget = (props: any) => {
             style={styles.image}
             resizeMode="cover"
           />
-          <View style={styles.unreadCountContainer}>
-            <Text style={{ color: '#fff' }}>
-              {dataUnreadCount?.widgetsTotalUnreadCount || 0}
-            </Text>
-          </View>
+          {totalUnreadCount > 0 ? (
+            <View style={styles.unreadCountContainer}>
+              <Text style={styles.unreadCountText}>
+                {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+              </Text>
+            </View>
+          ) : null}
         </TouchableOpacity>
       </View>
     );
@@ -183,6 +341,9 @@ const Widget = (props: any) => {
         //Conversation
         conversationId,
         setConversationId,
+        //Unread
+        totalUnreadCount,
+        markConversationRead,
         // Connection
         setConnection,
         //
@@ -196,14 +357,7 @@ const Widget = (props: any) => {
       }}
     >
       <View style={styles.container}>
-        {conversationId !== null ? (
-          <ConversationDetail />
-        ) : (
-          <>
-            <Greetings />
-            <Conversations />
-          </>
-        )}
+        {conversationId !== null ? <ConversationDetail /> : <MessengerShell />}
       </View>
     </AppContext.Provider>
   );
@@ -238,13 +392,21 @@ const styles = StyleSheet.create({
   image: { width: 50, height: 50, borderRadius: 90 },
   unreadCountContainer: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: 'red',
-    width: 20,
+    top: -2,
+    right: -2,
+    backgroundColor: '#EF4444',
+    minWidth: 20,
     height: 20,
-    borderRadius: 50,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  unreadCountText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
   },
 });

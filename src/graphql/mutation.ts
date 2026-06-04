@@ -117,6 +117,12 @@ const widgetsSaveCustomerGetNotified = gql`
   }
 `;
 
+const widgetsReadConversationMessages = gql`
+  mutation widgetsReadConversationMessages($conversationId: String) {
+    widgetsReadConversationMessages(conversationId: $conversationId)
+  }
+`;
+
 const widgetsSaveBrowserInfo = gql`
   mutation widgetsSaveBrowserInfo(
     $customerId: String
@@ -170,6 +176,7 @@ const widgetsSaveBrowserInfo = gql`
 export {
   connect,
   widgetsInsertMessage,
+  widgetsReadConversationMessages,
   widgetsSaveCustomerGetNotified,
   widgetsSaveBrowserInfo,
 };

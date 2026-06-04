@@ -6,74 +6,95 @@ import HTML from 'react-native-render-html';
 import { strip_html } from '../../utils/utils';
 import Attachment from './Attachment';
 import Avatar from '../../components/Avatar';
+import { messengerTheme } from '../../theme';
 
 const { width } = Dimensions.get('window');
 
-const isDarkColor = (hex: any) => {
-  'worklet';
-  // https://stackoverflow.com/a/69353003/9999202
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  // https://stackoverflow.com/a/58270890/9999202
-  const hsp = Math.sqrt(0.299 * r ** 2 + 0.587 * g ** 2 + 0.114 * b ** 2);
-  return hsp < 170;
-};
+const INCOMING_MAX = width * 0.8;
+const OUTGOING_MAX = width * 0.78;
+const AVATAR_SIZE = 32;
 
 const Message = (props: any) => {
-  const { item, bgColor } = props;
+  const {
+    item,
+    bgColor,
+    // Grouping props (default to a standalone message when not provided).
+    isFirstInGroup = true,
+    isLastInGroup = true,
+  } = props;
 
-  const position = item?.customerId ? 'right' : 'left';
+  const showName = isFirstInGroup;
+  const showAvatar = isLastInGroup;
+  const showTime = isLastInGroup;
 
-  const renderContent = () => {
-    const strippedContent = strip_html(item?.content || '');
-    if (strippedContent?.length === 0) {
-      return null;
-    }
-    return <RenderHTML html={item?.content} />;
+  const isOutgoing = Boolean(item?.customerId);
+  const name = item?.user?.details?.fullName || item?.user?.details?.firstName;
+
+  const strippedContent = strip_html(item?.content || '', true);
+  const hasContent = !!strippedContent && strippedContent.trim().length > 0;
+  const hasAttachments = item?.attachments?.length > 0;
+
+  const rowSpacing = {
+    marginTop: isFirstInGroup ? messengerTheme.spacing.md : 2,
   };
 
-  return (
-    <View style={[customStyles[position].container]}>
-      {position === 'left' ? (
-        <Avatar user={item?.user} bgColor={bgColor} />
-      ) : null}
-      <View>
-        <View
-          style={[
-            styles.contentStyle,
-            {
-              backgroundColor: position === 'left' ? '#E7F2F7FF' : bgColor,
-              borderBottomLeftRadius: position === 'left' ? 0 : 20,
-              borderBottomRightRadius: position === 'left' ? 20 : 0,
-            },
-          ]}
-        >
-          {position === 'left' ? (
-            renderContent()
-          ) : (
-            <Text
-              style={{
-                paddingVertical: 12,
-                color: isDarkColor(bgColor) ? '#fff' : '#000',
-              }}
-            >
-              {item?.content}
+  if (isOutgoing) {
+    return (
+      <View style={[styles.outgoingRow, rowSpacing]}>
+        <View style={styles.outgoingColumn}>
+          {hasContent ? (
+            <View style={[styles.outgoingBubble, { backgroundColor: bgColor }]}>
+              <Text style={styles.outgoingText}>{item?.content}</Text>
+            </View>
+          ) : null}
+          {hasAttachments ? (
+            <View style={styles.attachmentWrap}>
+              <Attachment images={item?.attachments} />
+            </View>
+          ) : null}
+          {showTime ? (
+            <Text style={[styles.timestamp, styles.timestampRight]}>
+              {dayjs(item?.createdAt).format('hh:mm A')}
             </Text>
-          )}
-          {item?.attachments?.length > 0 ? (
-            <Attachment images={item?.attachments} />
           ) : null}
         </View>
-        <Text
-          style={{
-            color: '#686868',
-            fontSize: 12,
-            textAlign: position === 'left' ? 'left' : 'right',
-          }}
-        >
-          {dayjs(item?.createdAt).format('hh:mm A')}
-        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.incomingRow, rowSpacing]}>
+      {showAvatar ? (
+        <Avatar
+          user={item?.user}
+          bgColor={bgColor}
+          size={AVATAR_SIZE}
+          name={name}
+        />
+      ) : (
+        <View style={styles.avatarSpacer} />
+      )}
+      <View style={styles.incomingColumn}>
+        {showName && name ? (
+          <Text numberOfLines={1} style={styles.senderName}>
+            {name}
+          </Text>
+        ) : null}
+        {hasContent ? (
+          <View style={styles.incomingBubble}>
+            <RenderHTML html={item?.content} />
+          </View>
+        ) : null}
+        {hasAttachments ? (
+          <View style={styles.attachmentWrap}>
+            <Attachment images={item?.attachments} />
+          </View>
+        ) : null}
+        {showTime ? (
+          <Text style={[styles.timestamp, styles.timestampLeft]}>
+            {dayjs(item?.createdAt).format('hh:mm A')}
+          </Text>
+        ) : null}
       </View>
     </View>
   );
@@ -81,41 +102,79 @@ const Message = (props: any) => {
 
 export default Message;
 
-const customStyles = {
-  left: StyleSheet.create({
-    container: {
-      justifyContent: 'flex-start',
-      marginLeft: 0,
-      marginRight: 0,
-      marginTop: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-  }),
-  right: StyleSheet.create({
-    container: {
-      justifyContent: 'flex-end',
-      marginLeft: 0,
-      marginRight: 0,
-      marginTop: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-  }),
-} as any;
-
 const styles = StyleSheet.create({
-  contentStyle: {
-    paddingHorizontal: 15,
-    maxWidth: width * 0.8,
-    marginVertical: 5,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+  // Incoming (operator) — avatar + bubble on the left.
+  incomingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginTop: messengerTheme.spacing.md,
+    maxWidth: INCOMING_MAX,
+    alignSelf: 'flex-start',
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 90,
+  incomingColumn: {
+    marginLeft: messengerTheme.spacing.sm,
+    flexShrink: 1,
+  },
+  avatarSpacer: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+  },
+  senderName: {
+    fontSize: 11,
+    color: messengerTheme.colors.mutedText,
+    fontWeight: '500',
+    marginBottom: 3,
+    marginLeft: 4,
+  },
+  incomingBubble: {
+    backgroundColor: messengerTheme.colors.incomingBubble,
+    paddingHorizontal: messengerTheme.spacing.md,
+    paddingVertical: 8,
+    borderRadius: messengerTheme.radius.bubble,
+    borderBottomLeftRadius: messengerTheme.radius.tail,
+    alignSelf: 'flex-start',
+    ...messengerTheme.shadow.bubble,
+  },
+
+  // Outgoing (customer) — bubble pinned right.
+  outgoingRow: {
+    marginTop: messengerTheme.spacing.md,
+    maxWidth: OUTGOING_MAX,
+    alignSelf: 'flex-end',
+  },
+  outgoingColumn: {
+    alignItems: 'flex-end',
+  },
+  outgoingBubble: {
+    paddingHorizontal: messengerTheme.spacing.md,
+    paddingVertical: 8,
+    borderRadius: messengerTheme.radius.bubble,
+    borderBottomRightRadius: messengerTheme.radius.tail,
+    alignSelf: 'flex-end',
+    ...messengerTheme.shadow.bubble,
+  },
+  outgoingText: {
+    color: messengerTheme.colors.outgoingText,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+
+  attachmentWrap: {
+    marginTop: 4,
+  },
+  timestamp: {
+    color: messengerTheme.colors.subtleText,
+    fontSize: 10,
+    marginTop: 4,
+  },
+  timestampLeft: {
+    textAlign: 'left',
+    marginLeft: 4,
+  },
+  timestampRight: {
+    textAlign: 'right',
+    marginRight: 2,
   },
 });
 
@@ -130,23 +189,26 @@ const RenderHTML = React.memo(function RenderHTML({ html }: any) {
 
   return (
     <HTML
-      contentWidth={width - 150}
-      source={{
-        html: html,
+      contentWidth={INCOMING_MAX - AVATAR_SIZE - 24}
+      source={{ html }}
+      baseStyle={{
+        color: messengerTheme.colors.incomingText,
+        fontSize: 14,
+        lineHeight: 20,
       }}
       tagsStyles={{
-        p: { color: '#686868' },
+        p: { color: messengerTheme.colors.incomingText, margin: 0 },
         a: { color: '#3B85F4' },
-        li: { color: '#3B85F4' },
-        ol: { color: '#686868' },
+        li: { color: messengerTheme.colors.incomingText },
+        ol: { color: messengerTheme.colors.incomingText },
+        ul: { color: messengerTheme.colors.incomingText },
       }}
       ignoredDomTags={['meta', 'script', 'font', 'title']}
       ignoredStyles={['borderStyle']}
       renderersProps={renderersProps}
       defaultTextProps={{
-        style: {
-          color: '#000',
-        },
+        selectable: true,
+        style: { color: messengerTheme.colors.incomingText },
       }}
     />
   );

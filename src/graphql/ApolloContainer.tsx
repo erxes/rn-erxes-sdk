@@ -58,7 +58,6 @@ const ApolloContainer = ({ children, subDomain }: any) => {
             merge: true,
           },
         },
-        addTypename: true,
       }),
       defaultOptions: { watchQuery: { fetchPolicy: 'network-only' } },
     });
