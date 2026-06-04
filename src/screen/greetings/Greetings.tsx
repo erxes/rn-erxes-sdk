@@ -5,6 +5,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import React, { useContext } from 'react';
 import Social from './Social';
@@ -20,12 +21,27 @@ const Greetings = () => {
     onBack,
     bgColor,
     textColor,
+    logoUrl,
     integrationId,
     showWidget,
     setShow,
     //
     backIcon,
   } = value;
+
+  const renderHeaderIcon = () => {
+    if (logoUrl) {
+      return (
+        <Image
+          source={{ uri: logoUrl }}
+          style={styles.logo}
+          resizeMode="cover"
+        />
+      );
+    }
+
+    return backIcon;
+  };
 
   return (
     <SafeAreaView style={{ backgroundColor: bgColor }}>
@@ -41,7 +57,7 @@ const Greetings = () => {
             },
           ]}
         >
-          {backIcon}
+          {renderHeaderIcon()}
         </TouchableOpacity>
       ) : hasBack ? (
         <TouchableOpacity
@@ -55,7 +71,7 @@ const Greetings = () => {
             },
           ]}
         >
-          {backIcon}
+          {renderHeaderIcon()}
         </TouchableOpacity>
       ) : null}
       <View style={[styles.title]}>
@@ -94,5 +110,11 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  logo: {
+    width: 40,
+    height: 40,
+    borderRadius: 90,
   },
 });

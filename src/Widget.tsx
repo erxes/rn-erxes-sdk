@@ -14,6 +14,7 @@ import images from './assets/images';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { widgetsTotalUnreadCount } from './graphql/query';
 import { Text } from 'react-native';
+import { getAttachmentUrl } from './utils/utils';
 
 const Widget = (props: any) => {
   const {
@@ -117,6 +118,9 @@ const Widget = (props: any) => {
   const bgColor = uiOptions?.primary?.DEFAULT || uiOptions?.color || '#5629b6';
   const textColor =
     uiOptions?.primary?.foreground || uiOptions?.textColor || '#fff';
+  const logoUrl = uiOptions?.logo
+    ? getAttachmentUrl(uiOptions.logo, subDomain)
+    : undefined;
 
   if (!integrationId) {
     return null;
@@ -142,9 +146,9 @@ const Widget = (props: any) => {
           }}
         >
           <Image
-            source={images.logo}
+            source={logoUrl ? { uri: logoUrl } : images.logo}
             style={styles.image}
-            resizeMode="contain"
+            resizeMode="cover"
           />
           <View style={styles.unreadCountContainer}>
             <Text style={{ color: '#fff' }}>
@@ -171,6 +175,7 @@ const Widget = (props: any) => {
         //Ui Options
         bgColor,
         textColor,
+        logoUrl,
         //Datas
         brand: response?.data?.widgetsMessengerConnect?.brand,
         greetings: response?.data?.widgetsMessengerConnect?.messengerData,
