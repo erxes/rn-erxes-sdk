@@ -103,6 +103,43 @@ OR
 npm install --save rn-erxes-sdk
 ```
 
+Host apps must also install the native peer packages used by the SDK:
+
+```sh
+yarn add @react-native-async-storage/async-storage react-native-get-random-values
+```
+
+## Maintainer Workflow
+
+This repository requires Node.js `>=20.19.0` and Yarn Classic `1.22.22`.
+
+```sh
+corepack enable
+corepack prepare yarn@1.22.22 --activate
+yarn install
+```
+
+Build and validation commands:
+
+```sh
+yarn typecheck
+yarn lint
+yarn test
+yarn prepack
+npm pack --dry-run
+```
+
+Run the Expo SDK 54 example app:
+
+```sh
+cd example
+yarn install
+npx expo-doctor
+npx expo start --clear
+```
+
+The example app uses Expo SDK 54, React `19.1.0`, and React Native `0.81.5`. It aliases `rn-erxes-sdk` to the root `src` directory for local SDK development.
+
 ### How to use
 
 ```
