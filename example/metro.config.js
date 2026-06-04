@@ -36,5 +36,16 @@ module.exports = {
       acc[name] = path.join(__dirname, 'node_modules', name);
       return acc;
     }, {}),
+
+    resolveRequest: (context, moduleName, platform) => {
+      if (moduleName === 'bson') {
+        return {
+          type: 'sourceFile',
+          filePath: path.join(root, 'node_modules', 'bson', 'lib', 'bson.cjs'),
+        };
+      }
+
+      return context.resolveRequest(context, moduleName, platform);
+    },
   },
 };
