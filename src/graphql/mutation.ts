@@ -131,6 +131,38 @@ const widgetsSaveBrowserInfo = gql`
       _id
       conversationId
       customerId
+      user {
+        _id
+        details {
+          avatar
+          fullName
+          __typename
+        }
+        __typename
+      }
+      content
+      createdAt
+      internal
+      fromBot
+      contentType
+      engageData {
+        content
+        kind
+        sentAs
+        messageId
+        brandId
+        __typename
+      }
+      botData
+      messengerAppData
+      attachments {
+        url
+        name
+        size
+        type
+        __typename
+      }
+      __typename
     }
   }
 `;
