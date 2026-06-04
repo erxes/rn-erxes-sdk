@@ -113,11 +113,15 @@ const Widget = (props: any) => {
 
   const integrationId = response?.data?.widgetsMessengerConnect?.integrationId;
 
-  if (!visibleLauncher || !integrationId) {
+  if (!integrationId) {
     return null;
   }
 
   if (show) {
+    if (!visibleLauncher) {
+      return null;
+    }
+
     return (
       <View style={{ flex: 1, zIndex: 999 }}>
         <TouchableOpacity
