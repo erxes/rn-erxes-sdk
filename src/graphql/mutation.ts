@@ -44,25 +44,23 @@ const connect = gql`
 `;
 
 const widgetsInsertMessage = gql`
-  mutation widgetsInsertMessage(
+  mutation WidgetsInsertMessage(
     $integrationId: String!
     $customerId: String
     $visitorId: String
-    $message: String
-    $contentType: String
     $conversationId: String
+    $contentType: String
+    $message: String
     $attachments: [AttachmentInput]
-    $skillId: String
   ) {
     widgetsInsertMessage(
       integrationId: $integrationId
       customerId: $customerId
       visitorId: $visitorId
+      conversationId: $conversationId
       contentType: $contentType
       message: $message
-      conversationId: $conversationId
       attachments: $attachments
-      skillId: $skillId
     ) {
       _id
       conversationId
@@ -81,11 +79,6 @@ const widgetsInsertMessage = gql`
       internal
       fromBot
       contentType
-      videoCallData {
-        url
-        status
-        __typename
-      }
       engageData {
         content
         kind
