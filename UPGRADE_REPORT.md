@@ -61,7 +61,7 @@ The SDK has no root native implementation folders, podspec, TurboModule, Fabric 
 
 ## 11. Builder Bob and tooling changes
 
-Builder Bob remained on the existing configuration because `yarn prepack` still builds CommonJS, module, and TypeScript declaration outputs successfully. Tooling fixes were limited to reproducibility: modern RN Babel preset, explicit Babel/ESLint parser dependencies, `eslint-plugin-ft-flow`, and Lefthook commands that work without an upstream branch.
+Builder Bob remained on the existing configuration because `yarn prepack` still builds CommonJS, module, and TypeScript declaration outputs successfully. Tooling fixes were limited to reproducibility: modern RN Babel preset, explicit Babel/ESLint parser dependencies, `eslint-plugin-ft-flow`, an explicit local `tsc` path for Bob's TypeScript target, and Lefthook commands that work without an upstream branch.
 
 ## 12. Source-code changes
 
