@@ -49,57 +49,6 @@ const widgetsConversations = gql`
   }
 `;
 
-const knowledgeBaseTopicDetail = gql`
-  query knowledgeBaseTopicDetail($_id: String!) {
-    knowledgeBaseTopicDetail(_id: $_id) {
-      title
-      description
-      categories {
-        _id
-        title
-        description
-        numOfArticles
-        parentCategoryId
-        icon
-        __typename
-      }
-      parentCategories {
-        _id
-        title
-        description
-        numOfArticles
-        parentCategoryId
-        icon
-        __typename
-      }
-      __typename
-    }
-  }
-`;
-
-const knowledgeBaseCategoryDetail = gql`
-  query knowledgeBaseCategoryDetail($_id: String!) {
-    knowledgeBaseCategoryDetail(_id: $_id) {
-      _id
-      title
-      description
-      numOfArticles
-      parentCategoryId
-      icon
-      parentCategoryId
-      articles {
-        _id
-        title
-        summary
-        content
-        createdDate
-        __typename
-      }
-      __typename
-    }
-  }
-`;
-
 const widgetsConversationDetail = gql`
   query widgetsConversationDetail($_id: String, $integrationId: String!) {
     widgetsConversationDetail(_id: $_id, integrationId: $integrationId) {
@@ -182,7 +131,5 @@ export {
   widgetsMessengerSupporters,
   widgetsConversations,
   widgetsConversationDetail,
-  knowledgeBaseTopicDetail,
-  knowledgeBaseCategoryDetail,
   widgetsTotalUnreadCount,
 };
