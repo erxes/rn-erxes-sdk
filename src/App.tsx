@@ -2,7 +2,7 @@ import 'react-native-get-random-values';
 import React, { useEffect } from 'react';
 import Widget from './Widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ObjectId } from 'bson';
+import { createObjectIdLikeString } from './utils/objectId';
 import ApolloContainer from './graphql/ApolloContainer';
 
 export type PropTypes = {
@@ -44,7 +44,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
   const [show, setShow] = React.useState<boolean>(showWidget);
 
   useEffect(() => {
-    let visitorId: any;
+    let visitorId: string | undefined;
     let tempCustomerId = '';
     setLoading(true);
     AsyncStorage.getItem('cachedCustomerId')
@@ -53,12 +53,12 @@ const ErxesSDK: React.FC<PropTypes> = ({
           tempCustomerId = JSON.parse(value);
         }
         if (!tempCustomerId) {
-          // declare the data fetching function
-          visitorId = new ObjectId();
+          // mint a guest visitor id (24-char hex, same shape as a Mongo ObjectId)
+          visitorId = createObjectIdLikeString();
         }
         setConnection({
           cachedCustomerId: tempCustomerId ? tempCustomerId : null,
-          visitorId: visitorId?.toString(),
+          visitorId: visitorId,
         });
         AsyncStorage.getItem('conversationId')
           .then((v) => {
@@ -75,7 +75,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
       .catch((e) => {
         setConnection({
           cachedCustomerId: null,
-          visitorId: new ObjectId(),
+          visitorId: createObjectIdLikeString(),
         });
         setLoading(false);
         console.log('Failed on cachedCustomerId', e.message);
