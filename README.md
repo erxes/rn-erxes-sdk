@@ -87,7 +87,7 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 
 ## Usage
 
-<img src="https://raw.githubusercontent.com/erxes/rn-erxes-sdk/a7a111fafd30b71e34e99e618800b3110c2b57b6/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20Max%20-%202023-06-02%20at%2017.08.25.png" alt="screenshot" width="350">
+<img src="https://raw.githubusercontent.com/erxes/rn-erxes-sdk/main/MOBILE-SDK.png" alt="rn-erxes-sdk messenger screenshot" width="350">
 
 ---
 
@@ -111,7 +111,21 @@ or npm:
 npm install --save rn-erxes-sdk
 ```
 
-These commands install the latest version published to **npm**. Pushing code to GitHub does **not** automatically update the npm package — a new version must be published explicitly (see [Maintainer workflow](#maintainer-workflow)).
+```bash
+npm i rn-erxes-sdk
+```
+
+These commands install the latest version published to **npm** (currently `0.1.26`). To install or upgrade to a specific version, pin it explicitly:
+
+```bash
+yarn add rn-erxes-sdk@0.1.26
+```
+
+```bash
+npm i rn-erxes-sdk@0.1.26
+```
+
+Pushing code to GitHub does **not** automatically update the npm package — a new version must be published explicitly (see [Maintainer workflow](#maintainer-workflow)).
 
 ## Required peer dependencies
 
