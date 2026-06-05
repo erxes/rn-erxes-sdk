@@ -8,9 +8,11 @@ import {
   Platform,
   StatusBar,
   ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import React, { useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMutation } from '@apollo/client';
 import AppContext from '../../context/Context';
 import Supporters from '../greetings/Supporters';
 import Social from '../greetings/Social';
@@ -20,6 +22,8 @@ import {
   AVAILABILITY_MESSAGE,
   formatOnlineHours,
 } from '../../utils/onlineHours';
+import InputTools from '../../components/InputTools';
+import { widgetsInsertMessage } from '../../graphql/mutation';
 
 const LOGO_CHIP = 36;
 
@@ -35,11 +39,19 @@ const Home = () => {
     textColor,
     logoUrl,
     integrationId,
+    customerId,
+    visitorId,
     showWidget,
     setShow,
     setConversationId,
     backIcon,
+    sendIcon,
+    subDomain,
   } = value;
+
+  const [sendMutation] = useMutation(widgetsInsertMessage);
+  const [sending, setSending] = React.useState(false);
+  const sendingRef = React.useRef(false);
 
   const greetingMessages = greetings?.messages?.greetings;
   const title = greetingMessages?.title || 'How can we help?';
@@ -56,6 +68,48 @@ const Home = () => {
   const startNewConversation = () => {
     AsyncStorage.removeItem('conversationId');
     setConversationId('');
+  };
+
+  const onSend = (text: string, attachments?: any[]) => {
+    if (sendingRef.current) {
+      return;
+    }
+
+    sendingRef.current = true;
+    setSending(true);
+
+    sendMutation({
+      variables: {
+        integrationId,
+        customerId,
+        visitorId,
+        conversationId: null,
+        contentType: 'text',
+        message: text,
+        attachments:
+          attachments && attachments.length > 0 ? attachments : undefined,
+      },
+    })
+      .then((res: any) => {
+        if (res.errors) {
+          return console.log(res.errors);
+        }
+
+        const insertedMessage = res.data.widgetsInsertMessage;
+        const nextConversationId = insertedMessage?.conversationId;
+
+        if (nextConversationId) {
+          AsyncStorage.setItem('conversationId', nextConversationId);
+          setConversationId(nextConversationId);
+        }
+      })
+      .catch((err: any) => {
+        console.log(err);
+      })
+      .finally(() => {
+        sendingRef.current = false;
+        setSending(false);
+      });
   };
 
   const renderLogoButton = () => {
@@ -86,10 +140,15 @@ const Home = () => {
     Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
 
   return (
-    <View style={styles.root}>
+    <KeyboardAvoidingView
+      style={styles.root}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <ScrollView
+        style={styles.scroll}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Hero */}
         <SafeAreaView style={[styles.hero, { backgroundColor: bgColor }]}>
@@ -164,7 +223,16 @@ const Home = () => {
           </View>
         </View>
       </ScrollView>
-    </View>
+      <InputTools
+        onSend={onSend}
+        bgColor={bgColor}
+        sendIcon={sendIcon}
+        subDomain={subDomain}
+        sending={sending}
+        persistentMenus={greetings?.persistentMenus}
+        placeholder="Start a new conversation..."
+      />
+    </KeyboardAvoidingView>
   );
 };
 
@@ -174,6 +242,9 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: messengerTheme.colors.background,
+  },
+  scroll: {
+    flex: 1,
   },
   scrollContent: {
     paddingBottom: messengerTheme.spacing.xl,

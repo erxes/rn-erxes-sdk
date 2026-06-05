@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { ErxesSDK } from 'rn-erxes-sdk';
 
 export default function App() {
-  const integrationId = '5e8rLNorH96CbrOIfHfqT';
-  const subDomain = 'emtest.next.erxes.io';
+  const integrationId = '1234567890abcdef';
+  const subDomain = 'officenext.erxes.io';
 
   const data = {
     firstName: 'First-Name',
@@ -21,7 +21,7 @@ export default function App() {
     countryCode: 'MN',
     city: 'Ulaanbaatar',
     country: 'Mongolia',
-    hostname: 'https:office.erxes.io',
+    hostname: 'https://office.erxes.io',
     language: 'en-US',
     userAgent:
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',

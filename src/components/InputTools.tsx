@@ -42,6 +42,7 @@ const InputTools: React.FC<any> = (props: any) => {
     subDomain,
     persistentMenus,
     sending = false,
+    placeholder = 'Reply...',
   } = props;
 
   const [input, onInput] = useState<string>('');
@@ -205,7 +206,7 @@ const InputTools: React.FC<any> = (props: any) => {
         ) : null}
 
         <TextInput
-          placeholder={'Reply...'}
+          placeholder={placeholder}
           selectionColor={bgColor}
           underlineColorAndroid={'transparent'}
           style={styles.textInput}
