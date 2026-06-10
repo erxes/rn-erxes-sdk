@@ -93,32 +93,26 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 
 # rn-erxes-sdk
 
-A React Native SDK for embedding the [erxes](https://erxes.io/) messenger experience inside a mobile application. It renders the erxes messenger UI, connects the visitor/customer to your erxes messenger integration, and handles conversations, unread counts, and message subscriptions for you.
+A React Native bridge for embedding the native SwiftUI erxes messenger from
+[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) in an iOS app.
 
-## Which API should I use?
+This package exposes only the native iOS API:
 
-| API | Expo Go | Expo development build / prebuild | Bare React Native | Platforms |
-| --- | --- | --- | --- | --- |
-| `<ErxesSDK />` | Yes | Yes | Yes | iOS and Android |
-| `ErxesNativeIOS` | No | Yes | Yes | iOS only |
+```tsx
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
+```
 
-Use `<ErxesSDK />` for the cross-platform React Native messenger. Use
-`ErxesNativeIOS` only when you specifically want the native SwiftUI iOS
-messenger from [`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk).
-
-Native iOS requirements:
+## Requirements
 
 - iOS `16.0+`
 - Swift `5.9+`
 - CocoaPods
-- Expo development build/prebuild or bare React Native. Native modules do not
-  run in Expo Go.
+- Bare React Native, or Expo development build/prebuild
+- Not supported in Expo Go
 
 ## Docs
 
-- [Expo guide](docs/expo.md)
 - [Native iOS guide](docs/native-ios.md)
-- [Bare React Native guide](docs/bare-react-native.md)
 
 ## Installation
 
@@ -145,251 +139,6 @@ npm i rn-erxes-sdk@0.1.26
 
 Pushing code to GitHub does **not** automatically update the npm package — a new version must be published explicitly (see [Maintainer workflow](#maintainer-workflow)).
 
-## Peer dependencies
-
-The React Native renderer relies on the following packages in the host app:
-
-```bash
-npx expo install @react-native-async-storage/async-storage
-yarn add react-native-get-random-values
-```
-
-npm equivalent:
-
-```bash
-npx expo install @react-native-async-storage/async-storage
-npm install --save react-native-get-random-values
-```
-
-- **`@react-native-async-storage/async-storage`** — required. Used to cache the customer id and conversation id between launches.
-- **`react-native-get-random-values`** — required. The SDK imports it internally to polyfill `crypto.getRandomValues`, which is used to generate a guest visitor id. It must be present in the host app's dependency tree.
-
-Optional attachment picker:
-
-```bash
-npx expo install expo-image-picker
-```
-
-- **`expo-image-picker`** — optional. If installed, the messenger lets users attach images from their library. The SDK loads it lazily, so the attachment button is simply hidden when it is not installed. (Bare React Native apps may use `react-native-image-picker` instead — it is detected the same way.)
-
-## Quick Start: Expo Go / Managed Expo
-
-```bash
-npx create-expo-app@latest rn-erxes-sdk-test
-cd rn-erxes-sdk-test
-
-yarn add rn-erxes-sdk
-npx expo install @react-native-async-storage/async-storage
-yarn add react-native-get-random-values
-
-npx expo start --clear
-```
-
-npm alternative:
-
-```bash
-npm install --save rn-erxes-sdk
-npx expo install @react-native-async-storage/async-storage
-npm install --save react-native-get-random-values
-
-npx expo start --clear
-```
-
-Render `<ErxesSDK />` from your app entry. In a classic Expo
-(`blank-typescript`) project that is `App.tsx`. In an Expo Router project the
-usage commonly lives in:
-
-```text
-app/index.tsx
-```
-
-or:
-
-```text
-src/app/index.tsx
-```
-
-Expo Go can only use `<ErxesSDK />`. For `ErxesNativeIOS`, use an Expo
-development build or prebuild. See [Native iOS guide](docs/native-ios.md).
-
-## Usage with Expo
-
-The example below separates three concerns:
-
-1. authenticated customer-profile data taken from the host app's `currentUser` query,
-2. browser/device/runtime metadata, and
-3. the props passed to `ErxesSDK`.
-
-```tsx
-import * as React from 'react';
-import { Platform, View } from 'react-native';
-import { ErxesSDK } from 'rn-erxes-sdk';
-
-type CurrentUser = {
-  firstName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-  sex?: string | number;
-  propertiesData?: Record<string, unknown>;
-};
-
-type Props = {
-  currentUser?: CurrentUser;
-};
-
-export default function App({ currentUser }: Props) {
-  const integrationId = 'YOUR_INTEGRATION_ID';
-  const subDomain = 'YOUR_SUBDOMAIN.next.erxes.io';
-
-  const data = {
-    firstName: currentUser?.firstName ?? '',
-    lastName: currentUser?.lastName ?? '',
-    primaryEmail: currentUser?.primaryEmail ?? '',
-    sex: currentUser?.sex ?? '',
-    Type: 'mobile',
-    ...currentUser?.propertiesData,
-  };
-
-  const properties = {
-    remoteAddress: '',
-    region: '',
-    countryCode: '',
-    city: '',
-    country: '',
-    url: 'https://YOUR_SUBDOMAIN.nextwidgets.erxes.io/',
-    hostname: 'YOUR_SUBDOMAIN.nextwidgets.erxes.io',
-    language: 'en-US',
-    userAgent: Platform.OS,
-  };
-
-  return (
-    <View style={{ flex: 1 }}>
-      <ErxesSDK
-        integrationId={integrationId}
-        subDomain={subDomain}
-        onBack={() => console.log('onBack')}
-        showWidget={false}
-        phone={currentUser?.primaryPhone ?? ''}
-        data={data}
-        properties={properties}
-      />
-    </View>
-  );
-}
-```
-
-Notes:
-
-- The exact `currentUser` query depends on your host application — the SDK does not provide it.
-- `data` should normally be mapped from the authenticated user's query result rather than hardcoded.
-- Do not hardcode private customer information in production.
-- Empty property values are acceptable when metadata is unavailable.
-- Do not fake IP addresses or location values.
-- Replace `YOUR_INTEGRATION_ID` and `YOUR_SUBDOMAIN` with the values from your erxes environment.
-- `Platform.OS` is only a lightweight fallback for `userAgent`; it is not a complete browser user-agent string.
-
-## Customer data from `currentUser`
-
-`data` is customer-profile information. It is forwarded to the erxes `widgetsMessengerConnect` mutation (as the `data` JSON argument) when the SDK connects, and is used to create or identify the customer.
-
-```tsx
-const data = {
-  firstName: currentUser?.firstName ?? '',
-  lastName: currentUser?.lastName ?? '',
-  primaryEmail: currentUser?.primaryEmail ?? '',
-  sex: currentUser?.sex ?? '',
-  Type: 'mobile',
-  ...currentUser?.propertiesData,
-};
-```
-
-- This normally comes from the host application's authenticated-user query.
-- Custom fields may be included when relevant (e.g. spread from `propertiesData`).
-- `data` is optional — when omitted, the visitor is connected as a guest.
-- Do not use fake values in production.
-
-## Browser and device information
-
-`properties` describes the browser, device, and runtime environment. When the SDK has an identified customer, it sends these values to the erxes `widgetsSaveBrowserInfo` mutation internally — **you do not call it yourself**, you only pass the `properties` prop.
-
-```tsx
-const properties = {
-  remoteAddress: '',
-  region: '',
-  countryCode: '',
-  city: '',
-  country: '',
-  url: 'https://YOUR_SUBDOMAIN.nextwidgets.erxes.io/',
-  hostname: 'YOUR_SUBDOMAIN.nextwidgets.erxes.io',
-  language: 'en-US',
-  userAgent: 'DEVICE_USER_AGENT',
-};
-```
-
-- Empty strings are acceptable when a value is unavailable.
-- Do not fake IP addresses or location values.
-- Collect real runtime values where possible.
-
-For reference, the mutation the SDK calls internally is:
-
-```graphql
-mutation widgetsSaveBrowserInfo(
-  $customerId: String
-  $visitorId: String
-  $browserInfo: JSON!
-) {
-  widgetsSaveBrowserInfo(
-    customerId: $customerId
-    visitorId: $visitorId
-    browserInfo: $browserInfo
-  ) {
-    _id
-    conversationId
-    customerId
-  }
-}
-```
-
-The SDK passes the connected `customerId` together with your `properties` object as `browserInfo`. The customer id and visitor id are managed by the SDK:
-
-- On first launch the SDK generates a guest **visitor id** (a 24-character hex string) and uses it to connect.
-- After connecting, the resolved **customer id** is cached in `AsyncStorage` and reused on later launches.
-
-You only pass the relevant props (`data`, `properties`, `phone`); you should not duplicate this connect / save-browser-info flow yourself.
-
-## Props
-
-Public props of `ErxesSDK` (from the SDK's TypeScript types):
-
-| Prop | Type | Required | Description |
-| --- | --- | --- | --- |
-| `integrationId` | `string` | Yes | erxes messenger integration id used to connect. |
-| `subDomain` | `string` | Yes | erxes environment subdomain (e.g. `YOUR_SUBDOMAIN.next.erxes.io`); used to build the GraphQL/WS endpoints and asset URLs. |
-| `showWidget` | `boolean` | Yes | When `true`, renders the floating launcher button; when `false`, renders the messenger inline. |
-| `brandCode` | `string` | No | Brand code; used as a fallback when `integrationId` is not provided. |
-| `email` | `string` | No | When set, the contact is connected as an identified user (`isUser`). |
-| `onBack` | `() => void` | No | Called when the user navigates back from the messenger. |
-| `phone` | `string` | No | Phone number used to identify the customer on connect. |
-| `data` | `object` | No | Customer-profile data forwarded to `widgetsMessengerConnect`. |
-| `properties` | `object` | No | Browser/device metadata sent as `browserInfo` to `widgetsSaveBrowserInfo`. |
-| `backIcon` | `ImageSource` | No | Custom back icon. |
-| `newChatIcon` | `ImageSource` | No | Custom "new chat" icon. |
-| `sendIcon` | `ImageSource` | No | Custom send icon. |
-
-## Native iOS messenger
-
-The package also exposes the native SwiftUI messenger from
-[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) through an
-imperative React Native bridge.
-
-Requirements:
-
-- iOS `16.0+`
-- Swift `5.9+`
-- A bare React Native app, or an Expo development build/prebuild. This does not
-  run inside Expo Go because it includes native iOS code.
-
 Install pods after installing or upgrading the package:
 
 ```bash
@@ -397,7 +146,15 @@ cd ios
 pod install
 ```
 
-Configure once before opening the messenger:
+For Expo development builds, prebuild first:
+
+```bash
+npx expo prebuild
+cd ios
+pod install
+```
+
+## Usage
 
 ```tsx
 import { ErxesNativeIOS } from 'rn-erxes-sdk';
@@ -410,7 +167,16 @@ await ErxesNativeIOS.configure({
 });
 ```
 
-Optionally identify the logged-in user:
+You can pass `endpoint` instead of `subDomain`:
+
+```tsx
+await ErxesNativeIOS.configure({
+  integrationId: 'YOUR_INTEGRATION_ID',
+  endpoint: 'https://YOUR_SUBDOMAIN.next.erxes.io',
+});
+```
+
+Identify the logged-in user when available:
 
 ```tsx
 await ErxesNativeIOS.setUser({
@@ -424,7 +190,7 @@ await ErxesNativeIOS.setUser({
 });
 ```
 
-Open the native messenger sheet:
+Open the messenger:
 
 ```tsx
 await ErxesNativeIOS.showMessenger();
@@ -439,12 +205,6 @@ await ErxesNativeIOS.clearUser();
 More details: [Native iOS guide](docs/native-ios.md).
 
 ## Troubleshooting
-
-### Clear Expo cache
-
-```bash
-npx expo start --clear
-```
 
 ### Confirm the installed version
 
@@ -462,30 +222,25 @@ npm ls rn-erxes-sdk
 
 ```bash
 yarn add rn-erxes-sdk@latest
-npx expo start --clear
 ```
 
 or:
 
 ```bash
 npm install --save rn-erxes-sdk@latest
-npx expo start --clear
 ```
 
-### Native dependencies
+After upgrading, reinstall pods and rebuild the app:
 
-The required peer dependencies (`@react-native-async-storage/async-storage`, `react-native-get-random-values`) must be installed in the **host app**. The SDK does not bundle them.
-
-### `await is not defined` (BSON Metro crash)
-
-Older SDK releases depended on `bson`, which could cause Metro/Hermes to crash at startup with:
-
-```text
-await is not defined
-node_modules/bson/lib/bson.mjs
+```bash
+cd ios
+pod install
 ```
 
-This happened because Expo resolves packages through their ESM `exports` map and picked `bson/lib/bson.mjs`, which uses a top-level `await`. **Upgrade to the latest `rn-erxes-sdk` release** — it no longer depends on `bson`. A custom Metro config change is not required.
+### Expo Go
+
+This package uses native Swift code and does not run in Expo Go. Use an Expo
+development build or a bare React Native app.
 
 ## Maintainer workflow
 

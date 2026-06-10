@@ -1,42 +1,36 @@
 import * as React from 'react';
-import { View } from 'react-native';
-import { ErxesSDK } from 'rn-erxes-sdk';
+import { Button, View } from 'react-native';
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
 export default function App() {
   const integrationId = '1234567890abcdef';
   const subDomain = 'officenext.erxes.io';
 
-  const data = {
-    firstName: 'First-Name',
-    lastName: 'Last-Name',
-    primaryEmail: 'primaryEmailTest@gmail.com',
-    sex: '1',
-    Type: 'mobile',
-    Register_number: 'Register_number',
-  };
+  React.useEffect(() => {
+    ErxesNativeIOS.configure({
+      integrationId,
+      subDomain,
+      primaryColor: '#3f78d9',
+    });
 
-  const properties = {
-    remoteAddress: '100.200.300.40/20',
-    region: 'Ulaanbaatar',
-    countryCode: 'MN',
-    city: 'Ulaanbaatar',
-    country: 'Mongolia',
-    hostname: 'https://office.erxes.io',
-    language: 'en-US',
-    userAgent:
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
-  };
+    ErxesNativeIOS.setUser({
+      email: 'primaryEmailTest@gmail.com',
+      phone: '94205640',
+      name: 'First-Name Last-Name',
+      customData: {
+        Type: 'mobile',
+        Register_number: 'Register_number',
+      },
+    });
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
-      <ErxesSDK
-        integrationId={integrationId}
-        subDomain={subDomain}
-        onBack={() => console.log('onBack')}
-        showWidget={false}
-        phone="94205640"
-        data={data}
-        properties={properties}
+      <Button
+        title="Open messenger"
+        onPress={() => {
+          ErxesNativeIOS.showMessenger();
+        }}
       />
     </View>
   );

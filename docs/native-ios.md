@@ -4,8 +4,7 @@
 [`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) through this
 package's React Native bridge.
 
-Use this API when you want the native iOS messenger UI. For a cross-platform
-iOS/Android implementation, use `<ErxesSDK />` instead.
+Use this API when you want the native iOS messenger UI from React Native.
 
 ## Requirements
 
@@ -13,7 +12,8 @@ iOS/Android implementation, use `<ErxesSDK />` instead.
 - Swift `5.9+`
 - CocoaPods
 - Bare React Native app, or Expo development build/prebuild
-- Not supported in Expo Go
+- Expo development build/prebuild or bare React Native. Expo Go is not
+  supported because it cannot load custom Swift native modules.
 
 ## Install
 
@@ -26,7 +26,7 @@ cd ios
 pod install
 ```
 
-For Expo:
+For Expo development builds:
 
 ```bash
 npx expo prebuild
@@ -112,8 +112,7 @@ For Expo, rebuild the development client:
 npx expo run:ios
 ```
 
-### Expo Go
+### Expo Go is not supported
 
 `ErxesNativeIOS` will throw in Expo Go because Expo Go cannot load this
-package's custom Swift native module. Use `<ErxesSDK />` in Expo Go, or build a
-development client for native iOS.
+package's custom Swift native module. Build a development client for native iOS.
