@@ -95,27 +95,45 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 
 A React Native SDK for embedding the [erxes](https://erxes.io/) messenger experience inside a mobile application. It renders the erxes messenger UI, connects the visitor/customer to your erxes messenger integration, and handles conversations, unread counts, and message subscriptions for you.
 
-It works in Expo (managed) and bare React Native apps.
+## Which API should I use?
+
+| API | Expo Go | Expo development build / prebuild | Bare React Native | Platforms |
+| --- | --- | --- | --- | --- |
+| `<ErxesSDK />` | Yes | Yes | Yes | iOS and Android |
+| `ErxesNativeIOS` | No | Yes | Yes | iOS only |
+
+Use `<ErxesSDK />` for the cross-platform React Native messenger. Use
+`ErxesNativeIOS` only when you specifically want the native SwiftUI iOS
+messenger from [`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk).
+
+Native iOS requirements:
+
+- iOS `16.0+`
+- Swift `5.9+`
+- CocoaPods
+- Expo development build/prebuild or bare React Native. Native modules do not
+  run in Expo Go.
+
+## Docs
+
+- [Expo guide](docs/expo.md)
+- [Native iOS guide](docs/native-ios.md)
+- [Bare React Native guide](docs/bare-react-native.md)
 
 ## Installation
 
-Install the SDK with Yarn:
+Install the SDK:
 
 ```bash
 yarn add rn-erxes-sdk
 ```
 
-or npm:
-
 ```bash
 npm install --save rn-erxes-sdk
 ```
 
-```bash
-npm i rn-erxes-sdk
-```
-
-These commands install the latest version published to **npm** (currently `0.1.26`). To install or upgrade to a specific version, pin it explicitly:
+These commands install the latest version published to **npm**. To install or
+upgrade to a specific version, pin it explicitly:
 
 ```bash
 yarn add rn-erxes-sdk@0.1.26
@@ -127,9 +145,9 @@ npm i rn-erxes-sdk@0.1.26
 
 Pushing code to GitHub does **not** automatically update the npm package — a new version must be published explicitly (see [Maintainer workflow](#maintainer-workflow)).
 
-## Required peer dependencies
+## Peer dependencies
 
-The SDK relies on the following native packages, which must be installed in the host app:
+The React Native renderer relies on the following packages in the host app:
 
 ```bash
 npx expo install @react-native-async-storage/async-storage
@@ -146,7 +164,7 @@ npm install --save react-native-get-random-values
 - **`@react-native-async-storage/async-storage`** — required. Used to cache the customer id and conversation id between launches.
 - **`react-native-get-random-values`** — required. The SDK imports it internally to polyfill `crypto.getRandomValues`, which is used to generate a guest visitor id. It must be present in the host app's dependency tree.
 
-### Optional
+Optional attachment picker:
 
 ```bash
 npx expo install expo-image-picker
@@ -154,7 +172,7 @@ npx expo install expo-image-picker
 
 - **`expo-image-picker`** — optional. If installed, the messenger lets users attach images from their library. The SDK loads it lazily, so the attachment button is simply hidden when it is not installed. (Bare React Native apps may use `react-native-image-picker` instead — it is detected the same way.)
 
-## Quick start with Expo
+## Quick Start: Expo Go / Managed Expo
 
 ```bash
 npx create-expo-app@latest rn-erxes-sdk-test
@@ -177,7 +195,9 @@ npm install --save react-native-get-random-values
 npx expo start --clear
 ```
 
-Render `<ErxesSDK />` from your app entry. In a classic Expo (`blank-typescript`) project that is `App.tsx`. In an Expo Router project the usage commonly lives in:
+Render `<ErxesSDK />` from your app entry. In a classic Expo
+(`blank-typescript`) project that is `App.tsx`. In an Expo Router project the
+usage commonly lives in:
 
 ```text
 app/index.tsx
@@ -188,6 +208,9 @@ or:
 ```text
 src/app/index.tsx
 ```
+
+Expo Go can only use `<ErxesSDK />`. For `ErxesNativeIOS`, use an Expo
+development build or prebuild. See [Native iOS guide](docs/native-ios.md).
 
 ## Usage with Expo
 
@@ -353,6 +376,67 @@ Public props of `ErxesSDK` (from the SDK's TypeScript types):
 | `backIcon` | `ImageSource` | No | Custom back icon. |
 | `newChatIcon` | `ImageSource` | No | Custom "new chat" icon. |
 | `sendIcon` | `ImageSource` | No | Custom send icon. |
+
+## Native iOS messenger
+
+The package also exposes the native SwiftUI messenger from
+[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) through an
+imperative React Native bridge.
+
+Requirements:
+
+- iOS `16.0+`
+- Swift `5.9+`
+- A bare React Native app, or an Expo development build/prebuild. This does not
+  run inside Expo Go because it includes native iOS code.
+
+Install pods after installing or upgrading the package:
+
+```bash
+cd ios
+pod install
+```
+
+Configure once before opening the messenger:
+
+```tsx
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
+
+await ErxesNativeIOS.configure({
+  integrationId: 'YOUR_INTEGRATION_ID',
+  subDomain: 'YOUR_SUBDOMAIN.next.erxes.io',
+  // or endpoint: 'https://YOUR_SUBDOMAIN.next.erxes.io',
+  primaryColor: '#3f78d9',
+});
+```
+
+Optionally identify the logged-in user:
+
+```tsx
+await ErxesNativeIOS.setUser({
+  email: 'user@example.com',
+  phone: '+15551234567',
+  name: 'Jane Doe',
+  customData: {
+    plan: 'pro',
+    source: 'mobile',
+  },
+});
+```
+
+Open the native messenger sheet:
+
+```tsx
+await ErxesNativeIOS.showMessenger();
+```
+
+Clear the user on logout:
+
+```tsx
+await ErxesNativeIOS.clearUser();
+```
+
+More details: [Native iOS guide](docs/native-ios.md).
 
 ## Troubleshooting
 
