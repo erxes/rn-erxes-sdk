@@ -94,7 +94,7 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 # rn-erxes-sdk
 
 A React Native bridge for embedding the native SwiftUI erxes messenger from
-[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) in an iOS app.
+[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) `0.0.1` in an iOS app.
 
 This package exposes only the native iOS API:
 
@@ -107,6 +107,7 @@ import { ErxesNativeIOS } from 'rn-erxes-sdk';
 - iOS `16.0+`
 - Swift `5.9+`
 - CocoaPods
+- React Native `0.81+` for CocoaPods Swift Package dependency support
 - Bare React Native, or Expo development build/prebuild
 - Not supported in Expo Go
 

@@ -1,4 +1,5 @@
 import Foundation
+import MessengerSDK
 import UIKit
 import React
 

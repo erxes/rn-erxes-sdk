@@ -1,7 +1,7 @@
 # Native iOS Guide
 
 `ErxesNativeIOS` opens the native SwiftUI messenger from
-[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) through this
+[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) `0.0.1` through this
 package's React Native bridge.
 
 Use this API when you want the native iOS messenger UI from React Native.
@@ -11,6 +11,7 @@ Use this API when you want the native iOS messenger UI from React Native.
 - iOS `16.0+`
 - Swift `5.9+`
 - CocoaPods
+- React Native `0.81+` for CocoaPods Swift Package dependency support
 - Bare React Native app, or Expo development build/prebuild
 - Expo development build/prebuild or bare React Native. Expo Go is not
   supported because it cannot load custom Swift native modules.
