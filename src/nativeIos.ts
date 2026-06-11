@@ -7,7 +7,6 @@ type NativeIOSConfig = {
   subDomain?: string;
   fileEndpoint?: string;
   cachedCustomerId?: string;
-  primaryColor?: string;
 };
 
 type NativeIOSUser = {
@@ -22,6 +21,8 @@ type NativeIOSModule = {
   setUser(options: NativeIOSUser): Promise<void>;
   clearUser(): Promise<void>;
   showMessenger(): Promise<void>;
+  showLauncher(): Promise<void>;
+  hideLauncher(): Promise<void>;
 };
 
 const LINKING_ERROR =
@@ -62,6 +63,12 @@ export const ErxesNativeIOS = {
   },
   showMessenger() {
     return getNativeModule().showMessenger();
+  },
+  showLauncher() {
+    return getNativeModule().showLauncher();
+  },
+  hideLauncher() {
+    return getNativeModule().hideLauncher();
   },
 };
 

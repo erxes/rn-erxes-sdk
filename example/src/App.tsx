@@ -10,7 +10,6 @@ export default function App() {
     ErxesNativeIOS.configure({
       integrationId,
       subDomain,
-      primaryColor: '#3f78d9',
     });
 
     ErxesNativeIOS.setUser({

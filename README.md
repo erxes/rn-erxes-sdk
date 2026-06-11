@@ -93,10 +93,8 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 
 # rn-erxes-sdk
 
-A React Native bridge for embedding the native SwiftUI erxes messenger from
-[`Munkhorgilb/ios-sdk`](https://github.com/Munkhorgilb/ios-sdk) `0.0.1` in an iOS app.
-
-This package exposes only the native iOS API:
+A React Native bridge for the native SwiftUI erxes messenger
+([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.0`).
 
 ```tsx
 import { ErxesNativeIOS } from 'rn-erxes-sdk';
@@ -104,12 +102,12 @@ import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
 ## Requirements
 
-- iOS `16.0+`
-- Swift `5.9+`
-- CocoaPods
-- React Native `0.81+` for CocoaPods Swift Package dependency support
-- Bare React Native, or Expo development build/prebuild
-- Not supported in Expo Go
+| | |
+|---|---|
+| iOS | 16.0+ |
+| Swift | 5.9+ |
+| React Native | 0.81+ |
+| Expo SDK | 53+ (development build or prebuild — Expo Go not supported) |
 
 ## Docs
 
@@ -117,93 +115,82 @@ import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
 ## Installation
 
-Install the SDK:
+### Bare React Native
 
 ```bash
 yarn add rn-erxes-sdk
+cd ios && pod install
+```
+
+### Expo
+
+```bash
+npx expo install rn-erxes-sdk expo-build-properties
+```
+
+Add to `app.json`:
+
+```json
+{
+  "plugins": [
+    ["expo-build-properties", { "ios": { "deploymentTarget": "16.0" } }]
+  ]
+}
 ```
 
 ```bash
-npm install --save rn-erxes-sdk
-```
-
-These commands install the latest version published to **npm**. To install or
-upgrade to a specific version, pin it explicitly:
-
-```bash
-yarn add rn-erxes-sdk@0.1.26
-```
-
-```bash
-npm i rn-erxes-sdk@0.1.26
-```
-
-Pushing code to GitHub does **not** automatically update the npm package — a new version must be published explicitly (see [Maintainer workflow](#maintainer-workflow)).
-
-Install pods after installing or upgrading the package:
-
-```bash
-cd ios
-pod install
-```
-
-For Expo development builds, prebuild first:
-
-```bash
-npx expo prebuild
-cd ios
-pod install
+npx expo prebuild --platform ios
+cd ios && pod install
+npx expo run:ios
 ```
 
 ## Usage
 
+Call `configure` once at startup. It connects in the background so the messenger opens instantly.
+
 ```tsx
 import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
-await ErxesNativeIOS.configure({
+ErxesNativeIOS.configure({
   integrationId: 'YOUR_INTEGRATION_ID',
-  subDomain: 'YOUR_SUBDOMAIN.next.erxes.io',
-  // or endpoint: 'https://YOUR_SUBDOMAIN.next.erxes.io',
-  primaryColor: '#3f78d9',
+  subDomain: 'yourcompany.erxes.io',
 });
 ```
 
-You can pass `endpoint` instead of `subDomain`:
+Optionally identify the user:
 
 ```tsx
-await ErxesNativeIOS.configure({
-  integrationId: 'YOUR_INTEGRATION_ID',
-  endpoint: 'https://YOUR_SUBDOMAIN.next.erxes.io',
-});
-```
-
-Identify the logged-in user when available:
-
-```tsx
-await ErxesNativeIOS.setUser({
+ErxesNativeIOS.setUser({
   email: 'user@example.com',
-  phone: '+15551234567',
   name: 'Jane Doe',
-  customData: {
-    plan: 'pro',
-    source: 'mobile',
-  },
+  customData: { plan: 'pro' },
 });
 ```
 
-Open the messenger:
+### Option A — Floating launcher (recommended)
+
+Shows a draggable button over your app. Tapping it opens the messenger automatically.
 
 ```tsx
-await ErxesNativeIOS.showMessenger();
+ErxesNativeIOS.showLauncher();
+// ErxesNativeIOS.hideLauncher(); // to remove it
 ```
 
-Clear the user on logout:
+### Option B — Your own button
+
+If you have a custom trigger in your UI, call `showMessenger()` directly:
 
 ```tsx
-await ErxesNativeIOS.clearUser();
+<Button title="Support" onPress={() => ErxesNativeIOS.showMessenger()} />
 ```
 
-More details: [Native iOS guide](docs/native-ios.md).
+On logout:
+
+```tsx
+ErxesNativeIOS.clearUser();
+```
+
+Full example: [Native iOS guide](docs/native-ios.md).
 
 ## Troubleshooting
 

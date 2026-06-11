@@ -16,4 +16,10 @@ RCT_EXTERN_METHOD(clearUser:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(showMessenger:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(showLauncher:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(hideLauncher:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 @end

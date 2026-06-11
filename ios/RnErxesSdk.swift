@@ -29,16 +29,13 @@ final class RnErxesSdk: NSObject {
 
             let fileEndpoint = Self.string(options["fileEndpoint"])
             let cachedCustomerId = Self.string(options["cachedCustomerId"])
-            let color = Self.color(from: options["primaryColor"] as? String)
-            let appearance = MessengerConfig.Appearance(primaryColor: color)
 
             MessengerSDK.configure(
                 MessengerConfig(
                     endpoint: endpoint,
                     integrationId: integrationId,
                     fileEndpoint: fileEndpoint,
-                    cachedCustomerId: cachedCustomerId,
-                    appearance: appearance
+                    cachedCustomerId: cachedCustomerId
                 )
             )
 
@@ -98,6 +95,28 @@ final class RnErxesSdk: NSObject {
         }
     }
 
+    @objc(showLauncher:rejecter:)
+    func showLauncher(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task { @MainActor in
+            MessengerSDK.showLauncher()
+            resolve(nil)
+        }
+    }
+
+    @objc(hideLauncher:rejecter:)
+    func hideLauncher(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task { @MainActor in
+            MessengerSDK.hideLauncher()
+            resolve(nil)
+        }
+    }
+
     private static func endpoint(from options: NSDictionary) -> String? {
         if let endpoint = string(options["endpoint"]) ?? string(options["serverUrl"]) {
             return endpoint
@@ -138,41 +157,6 @@ final class RnErxesSdk: NSObject {
                 result[item.key] = stringValue
             }
         }
-    }
-
-    @MainActor
-    private static func color(from hex: String?) -> UIColor {
-        guard let hex else {
-            return UIColor(red: 0.25, green: 0.47, blue: 0.85, alpha: 1)
-        }
-
-        var value = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        if value.hasPrefix("#") {
-            value.removeFirst()
-        }
-
-        guard value.count == 6 || value.count == 8, let intValue = UInt64(value, radix: 16) else {
-            return UIColor(red: 0.25, green: 0.47, blue: 0.85, alpha: 1)
-        }
-
-        let red: CGFloat
-        let green: CGFloat
-        let blue: CGFloat
-        let alpha: CGFloat
-
-        if value.count == 8 {
-            red = CGFloat((intValue >> 24) & 0xff) / 255
-            green = CGFloat((intValue >> 16) & 0xff) / 255
-            blue = CGFloat((intValue >> 8) & 0xff) / 255
-            alpha = CGFloat(intValue & 0xff) / 255
-        } else {
-            red = CGFloat((intValue >> 16) & 0xff) / 255
-            green = CGFloat((intValue >> 8) & 0xff) / 255
-            blue = CGFloat(intValue & 0xff) / 255
-            alpha = 1
-        }
-
-        return UIColor(red: red, green: green, blue: blue, alpha: alpha)
     }
 
     @MainActor
