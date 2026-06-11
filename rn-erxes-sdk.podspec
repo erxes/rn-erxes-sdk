@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
     spm_dependency(
       s,
       url: 'https://github.com/Munkhorgilb/ios-sdk.git',
-      requirement: { :kind => 'exactVersion', :version => '0.30.0' },
+      requirement: { :kind => 'exactVersion', :version => '0.30.1' },
       products: ['MessengerSDK']
     )
   else
