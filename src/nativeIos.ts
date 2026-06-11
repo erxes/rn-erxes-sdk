@@ -5,7 +5,6 @@ type NativeIOSConfig = {
   endpoint?: string;
   serverUrl?: string;
   subDomain?: string;
-  fileEndpoint?: string;
   cachedCustomerId?: string;
 };
 

@@ -27,14 +27,12 @@ final class RnErxesSdk: NSObject {
                 return
             }
 
-            let fileEndpoint = Self.string(options["fileEndpoint"])
             let cachedCustomerId = Self.string(options["cachedCustomerId"])
 
             MessengerSDK.configure(
                 MessengerConfig(
                     endpoint: endpoint,
                     integrationId: integrationId,
-                    fileEndpoint: fileEndpoint,
                     cachedCustomerId: cachedCustomerId
                 )
             )
