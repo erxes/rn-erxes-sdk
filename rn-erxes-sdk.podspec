@@ -35,7 +35,7 @@ Pod::Spec.new do |s|
   if defined?(spm_dependency)
     spm_dependency(
       s,
-      url: 'https://github.com/Munkhorgilb/ios-sdk.git',
+      url: 'https://github.com/erxes/erxes-ios-sdk.git',
       requirement: { :kind => 'exactVersion', :version => '0.30.2' },
       products: ['MessengerSDK']
     )
