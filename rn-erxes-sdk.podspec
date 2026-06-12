@@ -33,12 +33,30 @@ Pod::Spec.new do |s|
   s.dependency 'React-Core'
 
   if defined?(spm_dependency)
-    spm_dependency(
-      s,
-      url: 'https://github.com/erxes/erxes-ios-sdk.git',
-      requirement: { :kind => 'exactVersion', :version => '0.30.4' },
-      products: ['MessengerSDK']
-    )
+    # Local-dev override: point at a local erxes-ios-sdk checkout to iterate the
+    # native SDK without cutting a release, e.g.
+    #   ERXES_IOS_SDK_LOCAL=../sdk pod install
+    # `spm_dependency` treats a url that exists on disk as a local package (the
+    # version requirement is ignored). Unset/missing path falls back to the tag.
+    local_sdk = ENV['ERXES_IOS_SDK_LOCAL']
+    local_sdk = File.expand_path(local_sdk, __dir__) if local_sdk && !local_sdk.empty?
+
+    if local_sdk && File.exist?(local_sdk)
+      Pod::UI.puts "[rn-erxes-sdk] using LOCAL erxes-ios-sdk at #{local_sdk}" if defined?(Pod::UI)
+      spm_dependency(
+        s,
+        url: local_sdk,
+        requirement: { :kind => 'exactVersion', :version => '0.30.4' },
+        products: ['MessengerSDK']
+      )
+    else
+      spm_dependency(
+        s,
+        url: 'https://github.com/erxes/erxes-ios-sdk.git',
+        requirement: { :kind => 'exactVersion', :version => '0.30.4' },
+        products: ['MessengerSDK']
+      )
+    end
   else
     raise 'rn-erxes-sdk requires React Native 0.81+ CocoaPods SPM support to install MessengerSDK 0.0.1'
   end
