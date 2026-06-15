@@ -278,32 +278,44 @@ npx expo start --clear
 
 ### Release
 
-```bash
-npm login
-npm whoami
+Publishing is automated by `.github/workflows/publish.yml`, which runs on **GitHub Release publish** and pushes to both registries in parallel:
 
-npm version patch
-npm publish
+- **npm** → `@munkhorgil98/rn-erxes-sdk` (public). Uses the `NPM_TOKEN` repository secret, published with `--access public` (scoped packages are private by default).
+- **GitHub Packages** → `@erxes/rn-erxes-sdk`. Uses the built-in `GITHUB_TOKEN` (no secret to configure). The job rewrites the package name/registry at CI time only, so the committed `package.json` keeps the `@munkhorgil98` npm name.
 
-npm view @munkhorgil98/rn-erxes-sdk version
-git push origin main --follow-tags
-```
+#### Cutting a release
 
-- Pushing to GitHub does **not** publish to npm.
-- npmjs displays the README from the **published** package version.
+1. Bump `version` in `package.json` (e.g. `0.2.7` → `0.2.8`).
+2. Commit and merge to `main` — **the workflow only triggers from the default branch**, so the new version and workflow must be on `main` before you release.
+3. Create a **GitHub Release** at <https://github.com/erxes/rn-erxes-sdk/releases/new>:
+   - Tag: `v<version>` (must be new — a published npm version can't be reused), "Create new tag on publish"
+   - Target: `main`
+   - Publish release → both jobs run at <https://github.com/erxes/rn-erxes-sdk/actions>.
+4. Verify: `npm view @munkhorgil98/rn-erxes-sdk version`.
+
+#### One-time setup (already done, for reference)
+
+- **`NPM_TOKEN` secret** — a **Granular Access Token** from <https://www.npmjs.com/settings/munkhorgil98/tokens> with **Read and write** on the `@munkhorgil98` scope, added under repo **Settings → Secrets and variables → Actions**.
+- **npm account 2FA** must be set to **"Authorization only"** (uncheck "Require 2FA for write actions" at <https://www.npmjs.com/settings/munkhorgil98/profile>), otherwise CI publishing fails with `EOTP`.
+
+#### Troubleshooting
+
+- **`404 Not Found - PUT .../@scope%2f...`** — the scope doesn't match the npm account, or the token can't create the package. The package name's scope must equal your npm username (`@munkhorgil98`), and the token needs write access to that scope.
+- **`EOTP` (one-time password required)** — the account still requires 2FA for writes. Set 2FA to "Authorization only" (and confirm the change with your OTP so it persists).
+- **`401 / ENEEDAUTH`** — the `NPM_TOKEN` secret is missing/invalid; regenerate the token and update the secret.
+- After fixing a token/secret, just **re-run the failed job** in the Actions tab — no new version needed.
 - Each release requires a new version; a published version cannot be republished.
-- `npm version patch` is appropriate for backward-compatible fixes and documentation updates.
-- `npm publish` may require 2FA or a granular access token with publish permission.
-- Do not repeatedly run `npm version patch` after a failed publish unless a genuinely new version is needed.
 
-#### Automated publishing (npm + GitHub Packages)
+#### Manual fallback
 
-Publishing the tarballs is automated by `.github/workflows/publish.yml`, which runs on **GitHub Release publish** and pushes to both registries in parallel:
+If you need to publish from your machine (e.g. CI is unavailable):
 
-- **npm** (`@munkhorgil98/rn-erxes-sdk`) — uses the `NPM_TOKEN` repository secret. Create an npm automation token and add it under Settings → Secrets and variables → Actions. The package is published with `--access public` (scoped packages are private by default).
-- **GitHub Packages** (`@erxes/rn-erxes-sdk`) — uses the built-in `GITHUB_TOKEN`; no secret to configure. The job rewrites the package name/registry at CI time only, so the committed `package.json` keeps the unscoped npm name.
-
-To cut a release: bump the version (e.g. `npm version patch`), push the tag, then create a GitHub Release for that tag. The workflow builds and publishes both packages.
+```bash
+git checkout main && git pull
+yarn install
+npm publish --access public            # add --otp=<code> if 2FA-on-writes is enabled
+npm view @munkhorgil98/rn-erxes-sdk version
+```
 
 ## Become a partner
 
