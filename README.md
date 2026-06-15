@@ -97,7 +97,7 @@ A React Native bridge for the native SwiftUI erxes messenger
 ([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.0`).
 
 ```tsx
-import { ErxesNativeIOS } from 'rn-erxes-sdk';
+import { ErxesNativeIOS } from '@munkhorgilb/rn-erxes-sdk';
 ```
 
 ## Requirements
@@ -118,14 +118,14 @@ import { ErxesNativeIOS } from 'rn-erxes-sdk';
 ### Bare React Native
 
 ```bash
-yarn add rn-erxes-sdk
+yarn add @munkhorgilb/rn-erxes-sdk
 cd ios && pod install
 ```
 
 ### Expo
 
 ```bash
-npx expo install rn-erxes-sdk expo-build-properties
+npx expo install @munkhorgilb/rn-erxes-sdk expo-build-properties
 ```
 
 Add to `app.json`:
@@ -144,12 +144,34 @@ cd ios && pod install
 npx expo run:ios
 ```
 
+### Installing from GitHub Packages
+
+The package is also published to the [GitHub Packages npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) as `@erxes/rn-erxes-sdk`.
+
+Because GitHub Packages requires authentication even for reads, add an `.npmrc` to your project that routes the `@erxes` scope to GitHub and supplies a personal access token with the `read:packages` scope:
+
+```ini
+# .npmrc
+@erxes:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+Then export the token and install the scoped package:
+
+```bash
+export GITHUB_TOKEN=ghp_your_token_with_read_packages
+yarn add @erxes/rn-erxes-sdk
+cd ios && pod install
+```
+
+> The default npmjs.org package (`@munkhorgilb/rn-erxes-sdk`) needs no authentication — use GitHub Packages only if your org standardizes on it.
+
 ## Usage
 
 Call `configure` once at startup. It connects in the background so the messenger opens instantly.
 
 ```tsx
-import { ErxesNativeIOS } from 'rn-erxes-sdk';
+import { ErxesNativeIOS } from '@munkhorgilb/rn-erxes-sdk';
 
 ErxesNativeIOS.configure({
   integrationId: 'YOUR_INTEGRATION_ID',
@@ -197,25 +219,25 @@ Full example: [Native iOS guide](docs/native-ios.md).
 ### Confirm the installed version
 
 ```bash
-yarn list --pattern rn-erxes-sdk
+yarn list --pattern @munkhorgilb/rn-erxes-sdk
 ```
 
 or:
 
 ```bash
-npm ls rn-erxes-sdk
+npm ls @munkhorgilb/rn-erxes-sdk
 ```
 
 ### Upgrade the SDK
 
 ```bash
-yarn add rn-erxes-sdk@latest
+yarn add @munkhorgilb/rn-erxes-sdk@latest
 ```
 
 or:
 
 ```bash
-npm install --save rn-erxes-sdk@latest
+npm install --save @munkhorgilb/rn-erxes-sdk@latest
 ```
 
 After upgrading, reinstall pods and rebuild the app:
@@ -246,7 +268,7 @@ yarn prepack
 npm pack --dry-run
 ```
 
-The example app uses Expo SDK 54, React `19.1.0`, and React Native `0.81.5`, and aliases `rn-erxes-sdk` to the root `src` directory for local development:
+The example app uses Expo SDK 54, React `19.1.0`, and React Native `0.81.5`, and aliases `@munkhorgilb/rn-erxes-sdk` to the root `src` directory for local development:
 
 ```bash
 cd example
@@ -263,7 +285,7 @@ npm whoami
 npm version patch
 npm publish
 
-npm view rn-erxes-sdk version
+npm view @munkhorgilb/rn-erxes-sdk version
 git push origin main --follow-tags
 ```
 
@@ -273,6 +295,16 @@ git push origin main --follow-tags
 - `npm version patch` is appropriate for backward-compatible fixes and documentation updates.
 - `npm publish` may require 2FA or a granular access token with publish permission.
 - Do not repeatedly run `npm version patch` after a failed publish unless a genuinely new version is needed.
+
+#### Automated publishing (npm + GitHub Packages)
+
+Publishing the tarballs is automated by `.github/workflows/publish.yml`, which runs on **GitHub Release publish** and pushes to both registries in parallel:
+
+- **npm** (`@munkhorgilb/rn-erxes-sdk`) — uses the `NPM_TOKEN` repository secret. Create an npm automation token and add it under Settings → Secrets and variables → Actions. The package is published with `--access public` (scoped packages are private by default).
+- **GitHub Packages** (`@erxes/rn-erxes-sdk`) — uses the built-in `GITHUB_TOKEN`; no secret to configure. The job rewrites the package name/registry at CI time only, so the committed `package.json` keeps the unscoped npm name.
+
+To cut a release: bump the version (e.g. `npm version patch`), push the tag, then create a GitHub Release for that tag. The workflow builds and publishes both packages.
+
 ## Become a partner
 
 Offer your expertise to the world and introduce your community to erxes.

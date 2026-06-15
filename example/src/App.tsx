@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button, View } from 'react-native';
-import { ErxesNativeIOS } from 'rn-erxes-sdk';
+import { ErxesNativeIOS } from '@munkhorgilb/rn-erxes-sdk';
 
 export default function App() {
   const integrationId = '1234567890abcdef';
