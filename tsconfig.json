@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@munkhorgilb/rn-erxes-sdk": ["./src/index"]
+      "@munkhorgil98/rn-erxes-sdk": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
