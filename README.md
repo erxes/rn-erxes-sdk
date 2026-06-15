@@ -280,7 +280,7 @@ npx expo start --clear
 
 Publishing is automated by `.github/workflows/publish.yml`, which runs on **GitHub Release publish** and pushes to both registries in parallel:
 
-- **npm** → `@munkhorgil98/rn-erxes-sdk` (public). Uses the `NPM_TOKEN` repository secret, published with `--access public` (scoped packages are private by default).
+- **npm** → `@munkhorgil98/rn-erxes-sdk` (public). Uses the `NPM_TOKEN` repository secret, published with `--access public` (scoped packages are private by default) and `--provenance` (adds a verified "built from this repo" badge on npm; requires the job's `id-token: write` permission).
 - **GitHub Packages** → `@erxes/rn-erxes-sdk`. Uses the built-in `GITHUB_TOKEN` (no secret to configure). The job rewrites the package name/registry at CI time only, so the committed `package.json` keeps the `@munkhorgil98` npm name.
 
 #### Cutting a release

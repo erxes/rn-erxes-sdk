@@ -1,0 +1,39 @@
+version: 2
+updates:
+  # Library dependencies
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    groups:
+      # Batch low-risk dev/minor bumps into a single PR to reduce noise
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Example app dependencies
+  - package-ecosystem: npm
+    directory: /example
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - example
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # GitHub Actions used in workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - ci

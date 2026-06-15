@@ -8,6 +8,9 @@ jobs:
   publish-npm:
     name: Publish to npm
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,8 +26,9 @@ jobs:
 
       # publishConfig.registry in package.json already points to npmjs.org.
       # `npm publish` runs the `prepack` (bob build) lifecycle automatically.
+      # --provenance links the package to this repo + workflow run (needs id-token: write).
       - name: Publish
-        run: npm publish --access public
+        run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -50,7 +54,7 @@ jobs:
 
       # GitHub Packages requires the package to be scoped to the repo owner.
       # Rewrite the name/registry at CI time only (not committed) so the npm
-      # publish above keeps the unscoped `rn-erxes-sdk` name.
+      # publish above keeps the `@munkhorgil98/rn-erxes-sdk` name.
       - name: Scope package for GitHub Packages
         run: |
           npm pkg set name=@erxes/rn-erxes-sdk
