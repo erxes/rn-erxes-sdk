@@ -19,7 +19,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Configure npm registry
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           registry-url: https://registry.npmjs.org
@@ -46,7 +46,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Configure GitHub Packages registry
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           registry-url: https://npm.pkg.github.com
