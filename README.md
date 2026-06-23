@@ -85,9 +85,37 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 - **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
 - **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
 
-## Usage
+## Screenshots
 
-<img src="https://raw.githubusercontent.com/erxes/rn-erxes-sdk/main/MOBILE-SDK.png" alt="rn-erxes-sdk messenger screenshot" width="350">
+### iOS ✅ Available
+
+Screenshots from the native [`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk).
+
+**Classic mode** (`displayMode: 'classic'`)
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/erxes/erxes-ios-sdk/main/screenshots/home.png" width="220" alt="Home">
+  <img src="https://raw.githubusercontent.com/erxes/erxes-ios-sdk/main/screenshots/messages.png" width="220" alt="Messages">
+  <img src="https://raw.githubusercontent.com/erxes/erxes-ios-sdk/main/screenshots/tickets.png" width="220" alt="Tickets">
+</p>
+
+**Chat mode** (`displayMode: 'chat'`)
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/erxes/erxes-ios-sdk/main/screenshots/new-chat.png" width="220" alt="New Chat">
+  <img src="https://raw.githubusercontent.com/erxes/erxes-ios-sdk/main/screenshots/recent-chats.png" width="220" alt="Recent Chats">
+</p>
+
+### Android 🚧 Upcoming
+
+_Coming soon._
+
+> **Platform support:** iOS is fully supported (native SwiftUI messenger). Android support is on the roadmap — see the [TODO](#roadmap) below.
+
+## Roadmap
+
+- [x] iOS native messenger (classic widget + chat mode)
+- [ ] Android native messenger
 
 ---
 
