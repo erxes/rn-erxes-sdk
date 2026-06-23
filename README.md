@@ -127,7 +127,7 @@ Supports the classic widget and the full-screen **chat mode** (with voice
 messages and header/drawer actions).
 
 ```tsx
-import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
 ```
 
 ## Requirements
@@ -148,14 +148,14 @@ import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
 ### Bare React Native
 
 ```bash
-yarn add @munkhorgil98/rn-erxes-sdk
+yarn add rn-erxes-sdk
 cd ios && pod install
 ```
 
 ### Expo
 
 ```bash
-npx expo install @munkhorgil98/rn-erxes-sdk expo-build-properties
+npx expo install rn-erxes-sdk expo-build-properties
 ```
 
 Add to `app.json`:
@@ -174,34 +174,12 @@ cd ios && pod install
 npx expo run:ios
 ```
 
-### Installing from GitHub Packages
-
-The package is also published to the [GitHub Packages npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) as `@erxes/rn-erxes-sdk`.
-
-Because GitHub Packages requires authentication even for reads, add an `.npmrc` to your project that routes the `@erxes` scope to GitHub and supplies a personal access token with the `read:packages` scope:
-
-```ini
-# .npmrc
-@erxes:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-```
-
-Then export the token and install the scoped package:
-
-```bash
-export GITHUB_TOKEN=ghp_your_token_with_read_packages
-yarn add @erxes/rn-erxes-sdk
-cd ios && pod install
-```
-
-> The default npmjs.org package (`@munkhorgil98/rn-erxes-sdk`) needs no authentication — use GitHub Packages only if your org standardizes on it.
-
 ## Usage
 
 Call `configure` once at startup. It connects in the background so the messenger opens instantly.
 
 ```tsx
-import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
 ErxesNativeIOS.configure({
   integrationId: 'YOUR_INTEGRATION_ID',
@@ -272,25 +250,25 @@ Full example: [Native iOS guide](docs/native-ios.md).
 ### Confirm the installed version
 
 ```bash
-yarn list --pattern @munkhorgil98/rn-erxes-sdk
+yarn list --pattern rn-erxes-sdk
 ```
 
 or:
 
 ```bash
-npm ls @munkhorgil98/rn-erxes-sdk
+npm ls rn-erxes-sdk
 ```
 
 ### Upgrade the SDK
 
 ```bash
-yarn add @munkhorgil98/rn-erxes-sdk@latest
+yarn add rn-erxes-sdk@latest
 ```
 
 or:
 
 ```bash
-npm install --save @munkhorgil98/rn-erxes-sdk@latest
+npm install --save rn-erxes-sdk@latest
 ```
 
 After upgrading, reinstall pods and rebuild the app:
@@ -321,53 +299,12 @@ yarn prepack
 npm pack --dry-run
 ```
 
-The example app uses Expo SDK 54, React `19.1.0`, and React Native `0.81.5`, and aliases `@munkhorgil98/rn-erxes-sdk` to the root `src` directory for local development:
+The example app uses Expo SDK 54, React `19.1.0`, and React Native `0.81.5`, and aliases `rn-erxes-sdk` to the root `src` directory for local development:
 
 ```bash
 cd example
 yarn install
 npx expo start --clear
-```
-
-### Release
-
-Publishing is automated by `.github/workflows/publish.yml`, which runs on **GitHub Release publish** and pushes to both registries in parallel:
-
-- **npm** → `@munkhorgil98/rn-erxes-sdk` (public). Uses the `NPM_TOKEN` repository secret, published with `--access public` (scoped packages are private by default) and `--provenance` (adds a verified "built from this repo" badge on npm; requires the job's `id-token: write` permission).
-- **GitHub Packages** → `@erxes/rn-erxes-sdk`. Uses the built-in `GITHUB_TOKEN` (no secret to configure). The job rewrites the package name/registry at CI time only, so the committed `package.json` keeps the `@munkhorgil98` npm name.
-
-#### Cutting a release
-
-1. Bump `version` in `package.json` (e.g. `0.2.7` → `0.2.8`).
-2. Commit and merge to `main` — **the workflow only triggers from the default branch**, so the new version and workflow must be on `main` before you release.
-3. Create a **GitHub Release** at <https://github.com/erxes/rn-erxes-sdk/releases/new>:
-   - Tag: `v<version>` (must be new — a published npm version can't be reused), "Create new tag on publish"
-   - Target: `main`
-   - Publish release → both jobs run at <https://github.com/erxes/rn-erxes-sdk/actions>.
-4. Verify: `npm view @munkhorgil98/rn-erxes-sdk version`.
-
-#### One-time setup (already done, for reference)
-
-- **`NPM_TOKEN` secret** — a **Granular Access Token** from <https://www.npmjs.com/settings/munkhorgil98/tokens> with **Read and write** on the `@munkhorgil98` scope, added under repo **Settings → Secrets and variables → Actions**.
-- **npm account 2FA** must be set to **"Authorization only"** (uncheck "Require 2FA for write actions" at <https://www.npmjs.com/settings/munkhorgil98/profile>), otherwise CI publishing fails with `EOTP`.
-
-#### Troubleshooting
-
-- **`404 Not Found - PUT .../@scope%2f...`** — the scope doesn't match the npm account, or the token can't create the package. The package name's scope must equal your npm username (`@munkhorgil98`), and the token needs write access to that scope.
-- **`EOTP` (one-time password required)** — the account still requires 2FA for writes. Set 2FA to "Authorization only" (and confirm the change with your OTP so it persists).
-- **`401 / ENEEDAUTH`** — the `NPM_TOKEN` secret is missing/invalid; regenerate the token and update the secret.
-- After fixing a token/secret, just **re-run the failed job** in the Actions tab — no new version needed.
-- Each release requires a new version; a published version cannot be republished.
-
-#### Manual fallback
-
-If you need to publish from your machine (e.g. CI is unavailable):
-
-```bash
-git checkout main && git pull
-yarn install
-npm publish --access public            # add --otp=<code> if 2FA-on-writes is enabled
-npm view @munkhorgil98/rn-erxes-sdk version
 ```
 
 ## Become a partner

@@ -1,5 +1,5 @@
 {
-  "name": "@munkhorgil98/rn-erxes-sdk",
+  "name": "rn-erxes-sdk",
   "version": "0.3.0",
   "description": "react-native erxes sdk",
   "main": "lib/commonjs/index",

@@ -54,7 +54,7 @@ jobs:
 
       # GitHub Packages requires the package to be scoped to the repo owner.
       # Rewrite the name/registry at CI time only (not committed) so the npm
-      # publish above keeps the `@munkhorgil98/rn-erxes-sdk` name.
+      # publish above keeps the unscoped `rn-erxes-sdk` name.
       - name: Scope package for GitHub Packages
         run: |
           npm pkg set name=@erxes/rn-erxes-sdk

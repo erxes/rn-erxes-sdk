@@ -20,7 +20,7 @@ into your React Native app.
 ### Bare React Native
 
 ```bash
-yarn add @munkhorgil98/rn-erxes-sdk
+yarn add rn-erxes-sdk
 cd ios && pod install
 ```
 
@@ -29,7 +29,7 @@ cd ios && pod install
 Expo Go cannot load custom native modules. You need a development build or prebuild.
 
 ```bash
-npx expo install @munkhorgil98/rn-erxes-sdk expo-build-properties
+npx expo install rn-erxes-sdk expo-build-properties
 ```
 
 Set the minimum iOS deployment target in `app.json`:
@@ -57,7 +57,7 @@ npx expo run:ios
 Call `configure` once at app startup (e.g. inside `useEffect` in your root component). This starts the connection handshake in the background so the messenger is ready instantly when the user opens it.
 
 ```tsx
-import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
 ErxesNativeIOS.configure({
   integrationId: 'YOUR_INTEGRATION_ID',
@@ -141,7 +141,7 @@ you `.remove()` on cleanup.
 ```tsx
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
 function App() {
   const navigation = useNavigation();
@@ -232,7 +232,7 @@ ErxesNativeIOS.clearUser();
 ```tsx
 import React, { useEffect } from 'react';
 import { View, Button } from 'react-native';
-import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
+import { ErxesNativeIOS } from 'rn-erxes-sdk';
 
 export default function App() {
   useEffect(() => {
