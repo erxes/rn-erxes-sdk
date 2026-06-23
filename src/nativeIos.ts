@@ -1,4 +1,24 @@
-import { NativeModules, Platform } from 'react-native';
+import {
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+  type EmitterSubscription,
+  type NativeModule,
+} from 'react-native';
+
+/**
+ * A chat-mode action rendered in the header (`homeActions`) or drawer
+ * (`drawerActions`). Kept data-only so it can cross the native bridge — tapping
+ * it fires the `onErxesAction` event with this `id` (see `addActionListener`).
+ */
+type NativeIOSAction = {
+  /** Identifier echoed back when the action is tapped. */
+  id: string;
+  /** Display title (drawer rows / accessibility label for header icons). */
+  title: string;
+  /** SF Symbol name, e.g. "magnifyingglass". */
+  systemIcon: string;
+};
 
 type NativeIOSConfig = {
   integrationId: string;
@@ -6,6 +26,14 @@ type NativeIOSConfig = {
   serverUrl?: string;
   subDomain?: string;
   cachedCustomerId?: string;
+  /** UI shell to present. Defaults to `'classic'` (the sheet-based widget). */
+  displayMode?: 'classic' | 'chat';
+  /** Chat-mode header-right actions. Ignored in `'classic'`. */
+  homeActions?: NativeIOSAction[];
+  /** Chat-mode drawer top action rows. Ignored in `'classic'`. */
+  drawerActions?: NativeIOSAction[];
+  /** Primary accent color as a hex string, e.g. `'#3f78d9'`. */
+  primaryColor?: string;
 };
 
 type NativeIOSUser = {
@@ -23,6 +51,9 @@ type NativeIOSModule = {
   showLauncher(): Promise<void>;
   hideLauncher(): Promise<void>;
 };
+
+/** Native event name emitted when a chat-mode action is tapped. */
+const ACTION_EVENT = 'onErxesAction';
 
 const LINKING_ERROR =
   "The rn-erxes-sdk native iOS module is not linked. Run `pod install` in your app's ios directory and rebuild the app.";
@@ -69,6 +100,20 @@ export const ErxesNativeIOS = {
   hideLauncher() {
     return getNativeModule().hideLauncher();
   },
+  /**
+   * Listen for chat-mode action taps (`homeActions` / `drawerActions`). The
+   * handler receives the tapped action's `id`; your code decides what happens
+   * (navigate, open a modal, etc.). Returns a subscription — call `.remove()`
+   * to stop listening.
+   */
+  addActionListener(handler: (id: string) => void): EmitterSubscription {
+    const emitter = new NativeEventEmitter(
+      getNativeModule() as unknown as NativeModule
+    );
+    return emitter.addListener(ACTION_EVENT, (event: { id: string }) =>
+      handler(event.id)
+    );
+  },
 };
 
-export type { NativeIOSConfig, NativeIOSUser };
+export type { NativeIOSAction, NativeIOSConfig, NativeIOSUser };

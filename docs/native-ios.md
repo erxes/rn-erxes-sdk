@@ -1,7 +1,7 @@
 # Native iOS Guide
 
 `ErxesNativeIOS` bridges the native SwiftUI erxes messenger
-([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.0`)
+([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.6`)
 into your React Native app.
 
 ## Requirements
@@ -115,6 +115,104 @@ ErxesNativeIOS.configure({ integrationId, subDomain });
 
 // somewhere in your UI:
 <Button title="Support" onPress={() => ErxesNativeIOS.showMessenger()} />
+```
+
+---
+
+## Chat mode (`displayMode: 'chat'`)
+
+Set `displayMode: 'chat'` to present an AI-assistant-style full-screen shell
+instead of the classic 4-tab sheet widget. In chat mode the messenger opens
+**itself** full-screen as soon as the connect handshake succeeds — there is no
+floating launcher, so `showLauncher()` is a no-op (the messenger is already up).
+Omit `displayMode` (or pass `'classic'`) to keep the classic widget.
+
+### Header / drawer actions
+
+Chat mode can render host-configurable actions in the header (`homeActions`) and
+the left drawer (`drawerActions`). Actions cross the JS↔native bridge as **plain
+data** (`id`, `title`, `systemIcon`) — never as functions. Tapping an action
+fires a single native event carrying just the tapped `id`; your JS code decides
+what happens (navigate, open a modal, etc.) by switching on that `id`.
+
+Use `ErxesNativeIOS.addActionListener` to subscribe — it returns a subscription
+you `.remove()` on cleanup.
+
+```tsx
+import { useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
+
+function App() {
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    // 1. Configure with data-only action descriptors (id/title/icon — no functions)
+    ErxesNativeIOS.configure({
+      integrationId: 'YOUR_INTEGRATION_ID',
+      subDomain: 'yourcompany.erxes.io',
+      displayMode: 'chat',
+      homeActions: [
+        { id: 'orders', title: 'My Orders', systemIcon: 'bag' },
+        { id: 'profile', title: 'Profile', systemIcon: 'person' },
+      ],
+      drawerActions: [
+        { id: 'settings', title: 'Settings', systemIcon: 'gearshape' },
+      ],
+    });
+
+    // 2. Listen for taps — native only ever sends the id back
+    const sub = ErxesNativeIOS.addActionListener((id) => {
+      switch (id) {
+        case 'orders':
+          navigation.navigate('Orders');
+          break;
+        case 'profile':
+          navigation.navigate('Profile');
+          break;
+        case 'settings':
+          openSettingsModal(); // your own modal trigger
+          break;
+      }
+    });
+
+    return () => sub.remove();
+  }, [navigation]);
+
+  return null;
+}
+```
+
+`systemIcon` is an [SF Symbol](https://developer.apple.com/sf-symbols/) name
+(e.g. `"bag"`, `"gearshape"`).
+
+---
+
+## Voice messages
+
+In chat mode the messenger supports **voice messages** (audio playback) and
+**speech-to-text** dictation in the composer. These use the microphone and speech
+recognition, so your host app must declare the matching usage descriptions in its
+`Info.plist`:
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>Record voice messages in support chat.</string>
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>Transcribe your voice into chat messages.</string>
+```
+
+For Expo, add them under `ios.infoPlist` in `app.json`:
+
+```json
+{
+  "ios": {
+    "infoPlist": {
+      "NSMicrophoneUsageDescription": "Record voice messages in support chat.",
+      "NSSpeechRecognitionUsageDescription": "Transcribe your voice into chat messages."
+    }
+  }
+}
 ```
 
 ---

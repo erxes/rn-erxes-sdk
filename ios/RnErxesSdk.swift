@@ -4,10 +4,27 @@ import UIKit
 import React
 
 @objc(RnErxesSdk)
-final class RnErxesSdk: NSObject {
-    @objc
-    static func requiresMainQueueSetup() -> Bool {
+final class RnErxesSdk: RCTEventEmitter {
+    /// JS event fired when a chat-mode action (homeActions/drawerActions) is tapped.
+    private static let actionEvent = "onErxesAction"
+
+    /// True while JS has at least one listener attached, so we don't emit into the void.
+    private var hasListeners = false
+
+    override static func requiresMainQueueSetup() -> Bool {
         true
+    }
+
+    override func supportedEvents() -> [String] {
+        [Self.actionEvent]
+    }
+
+    override func startObserving() {
+        hasListeners = true
+    }
+
+    override func stopObserving() {
+        hasListeners = false
     }
 
     @objc(configure:resolver:rejecter:)
@@ -28,12 +45,32 @@ final class RnErxesSdk: NSObject {
             }
 
             let cachedCustomerId = Self.string(options["cachedCustomerId"])
+            let displayMode = Self.string(options["displayMode"])
+                .flatMap(DisplayMode.init(rawValue:)) ?? .classic
+            let homeActions = Self.actionItems(options["homeActions"])
+            let drawerActions = Self.actionItems(options["drawerActions"])
+
+            var appearance = MessengerConfig.Appearance()
+            if let primaryColor = Self.hexColor(options["primaryColor"]) {
+                appearance.primaryColor = primaryColor
+            }
+
+            // Route chat-mode action taps to JS as `onErxesAction` events. The SDK
+            // only hands back the tapped action's id (data-only across the bridge).
+            MessengerSDK.shared.onAction = { [weak self] id in
+                guard let self, self.hasListeners else { return }
+                self.sendEvent(withName: Self.actionEvent, body: ["id": id])
+            }
 
             MessengerSDK.configure(
                 MessengerConfig(
                     endpoint: endpoint,
                     integrationId: integrationId,
-                    cachedCustomerId: cachedCustomerId
+                    cachedCustomerId: cachedCustomerId,
+                    appearance: appearance,
+                    displayMode: displayMode,
+                    homeActions: homeActions,
+                    drawerActions: drawerActions
                 )
             )
 
@@ -143,6 +180,54 @@ final class RnErxesSdk: NSObject {
         }
 
         return nil
+    }
+
+    /// Parse `[{ id, title, systemIcon }]` from JS into `[ActionItem]`.
+    /// Entries without an `id` are skipped; `title`/`systemIcon` default to empty.
+    private static func actionItems(_ value: Any?) -> [ActionItem] {
+        guard let array = value as? [[String: Any]] else {
+            return []
+        }
+
+        return array.compactMap { item in
+            guard let id = string(item["id"]) else { return nil }
+            return ActionItem(
+                id: id,
+                title: string(item["title"]) ?? "",
+                systemIcon: string(item["systemIcon"]) ?? ""
+            )
+        }
+    }
+
+    /// Parse a `#RGB`/`#RRGGBB`/`#RRGGBBAA` hex string into a UIColor.
+    private static func hexColor(_ value: Any?) -> UIColor? {
+        guard var hex = string(value) else { return nil }
+        if hex.hasPrefix("#") { hex.removeFirst() }
+
+        // Expand shorthand #RGB to #RRGGBB.
+        if hex.count == 3 {
+            hex = hex.map { "\($0)\($0)" }.joined()
+        }
+
+        guard hex.count == 6 || hex.count == 8,
+              let intValue = UInt64(hex, radix: 16) else {
+            return nil
+        }
+
+        let hasAlpha = hex.count == 8
+        let r, g, b, a: CGFloat
+        if hasAlpha {
+            r = CGFloat((intValue >> 24) & 0xFF) / 255
+            g = CGFloat((intValue >> 16) & 0xFF) / 255
+            b = CGFloat((intValue >> 8) & 0xFF) / 255
+            a = CGFloat(intValue & 0xFF) / 255
+        } else {
+            r = CGFloat((intValue >> 16) & 0xFF) / 255
+            g = CGFloat((intValue >> 8) & 0xFF) / 255
+            b = CGFloat(intValue & 0xFF) / 255
+            a = 1
+        }
+        return UIColor(red: r, green: g, blue: b, alpha: a)
     }
 
     private static func stringDictionary(_ value: Any?) -> [String: String] {

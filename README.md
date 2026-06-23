@@ -94,7 +94,9 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 # rn-erxes-sdk
 
 A React Native bridge for the native SwiftUI erxes messenger
-([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.0`).
+([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.6`).
+Supports the classic widget and the full-screen **chat mode** (with voice
+messages and header/drawer actions).
 
 ```tsx
 import { ErxesNativeIOS } from '@munkhorgil98/rn-erxes-sdk';
@@ -205,6 +207,29 @@ If you have a custom trigger in your UI, call `showMessenger()` directly:
 ```tsx
 <Button title="Support" onPress={() => ErxesNativeIOS.showMessenger()} />
 ```
+
+### Chat mode
+
+Pass `displayMode: 'chat'` for the full-screen assistant shell (it auto-opens
+when connected, so `showLauncher()` is a no-op). You can add header/drawer
+actions and react to taps by `id`:
+
+```tsx
+ErxesNativeIOS.configure({
+  integrationId: 'YOUR_INTEGRATION_ID',
+  subDomain: 'yourcompany.erxes.io',
+  displayMode: 'chat',
+  homeActions: [{ id: 'orders', title: 'My Orders', systemIcon: 'bag' }],
+  drawerActions: [{ id: 'settings', title: 'Settings', systemIcon: 'gearshape' }],
+});
+
+const sub = ErxesNativeIOS.addActionListener((id) => {
+  // navigate / open a modal based on id
+});
+// sub.remove() on cleanup
+```
+
+Chat mode also supports voice messages — see the [Native iOS guide](docs/native-ios.md) for the required `Info.plist` permissions.
 
 On logout:
 

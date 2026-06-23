@@ -1,6 +1,7 @@
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
-@interface RCT_EXTERN_MODULE(RnErxesSdk, NSObject)
+@interface RCT_EXTERN_MODULE(RnErxesSdk, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(configure:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
