@@ -4,3 +4,11 @@ export type {
   NativeIOSConfig,
   NativeIOSUser,
 } from './nativeIos';
+
+export { ErxesMessenger } from './ErxesMessenger';
+export type {
+  ErxesUser,
+  ErxesAction,
+  ErxesMessengerHelpers,
+  ErxesMessengerProps,
+} from './ErxesMessenger';

@@ -4,6 +4,11 @@
 ([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.7`)
 into your React Native app.
 
+> **Most apps should use the `<ErxesMessenger />` component instead** — it wraps
+> this bridge and manages configure, user identity, action taps, and the show/hide
+> lifecycle declaratively. See the [README](../README.md#usage--erxesmessenger-recommended).
+> This guide documents the low-level `ErxesNativeIOS` API for advanced/imperative use.
+
 ## Requirements
 
 | | |

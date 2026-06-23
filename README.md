@@ -127,8 +127,14 @@ Supports the classic widget and the full-screen **chat mode** (with voice
 messages and header/drawer actions).
 
 ```tsx
-import { ErxesNativeIOS } from 'rn-erxes-sdk';
+import { ErxesMessenger } from 'rn-erxes-sdk';
 ```
+
+Two APIs are exported:
+
+- **`<ErxesMessenger />`** — a declarative React component that handles configure,
+  user identity, action taps, and the show/hide lifecycle. Recommended for most apps.
+- **`ErxesNativeIOS`** — the low-level native bridge for advanced/imperative control.
 
 ## Requirements
 
@@ -174,7 +180,116 @@ cd ios && pod install
 npx expo run:ios
 ```
 
-## Usage
+## Usage — `<ErxesMessenger />` (recommended)
+
+Render the component where the messenger should be active. It configures the SDK on
+mount, dispatches action taps to your `onPress` handlers, and hides the messenger on
+unmount. It renders nothing — the messenger UI is presented natively over your app.
+
+```tsx
+import { ErxesMessenger } from 'rn-erxes-sdk';
+
+<ErxesMessenger
+  integrationId="YOUR_INTEGRATION_ID"
+  subDomain="yourcompany.erxes.io"
+  user={{ name: 'Jane Doe', email: 'user@example.com' }}
+/>
+```
+
+### Example 1 — Classic floating launcher
+
+Shows a draggable button over your app. Tapping it opens the messenger.
+
+```tsx
+<ErxesMessenger
+  integrationId={INTEGRATION_ID}
+  endpoint={ENDPOINT}
+  displayMode="classic"
+  launcherVisible
+  user={CURRENT_USER}
+/>
+```
+
+### Example 2 — Home screen full-screen chat
+
+Chat mode opens full-screen and auto-opens when connected. Bind `visible` to screen
+focus so the messenger shows/hides as the user navigates, and add a header action to
+jump to another screen.
+
+```tsx
+const isFocused = useIsFocused();
+
+<ErxesMessenger
+  visible={isFocused}
+  integrationId={INTEGRATION_ID}
+  endpoint={ENDPOINT}
+  displayMode="chat"
+  user={CURRENT_USER}
+  homeActions={[
+    {
+      id: 'profile',
+      title: 'Profile',
+      systemIcon: 'person.crop.circle',
+      onPress: async ({ hide }) => {
+        await hide();
+        navigation.navigate('Profile', { user: CURRENT_USER });
+      },
+    },
+  ]}
+/>
+```
+
+### Example 3 — Settings → Support screen with a close button
+
+Open chat on mount, hide it on unmount, and add an `X` action that closes the
+messenger and pops the screen.
+
+```tsx
+<ErxesMessenger
+  integrationId={INTEGRATION_ID}
+  endpoint={ENDPOINT}
+  displayMode="chat"
+  autoOpen
+  autoHideOnUnmount
+  user={CURRENT_USER}
+  homeActions={[
+    {
+      id: 'close',
+      title: 'Close',
+      systemIcon: 'xmark',
+      onPress: async ({ hide }) => {
+        await hide();
+        navigation.goBack();
+      },
+    },
+  ]}
+  onReady={() => console.log('erxes messenger ready')}
+  onError={(error) => console.log('erxes messenger error', error)}
+/>
+```
+
+### Props
+
+| Prop | Type | Notes |
+|---|---|---|
+| `integrationId` | `string` | Required. |
+| `endpoint` / `serverUrl` / `subDomain` | `string` | Provide one. `subDomain` accepts `'company.erxes.io'`. |
+| `displayMode` | `'classic' \| 'chat'` | Defaults to `'classic'`. |
+| `user` | `ErxesUser` | `{ name?, email?, phone?, customData? }`. |
+| `cachedCustomerId` | `string` | Reuse a cached customer. |
+| `primaryColor` | `string` | Hex accent, e.g. `'#3f78d9'`. |
+| `visible` | `boolean` | Controlled show/hide on change. |
+| `autoOpen` | `boolean` | Open after configure. Defaults to `true` in chat mode. |
+| `autoHideOnUnmount` | `boolean` | Hide on unmount. Defaults to `true`. |
+| `launcherVisible` | `boolean` | Show/hide the floating launcher after configure. |
+| `homeActions` / `drawerActions` | `ErxesAction[]` | `{ id, title, systemIcon, onPress? }`. Chat mode only. |
+| `onLoad` / `onReady` / `onOpen` / `onClose` / `onError` | callbacks | Lifecycle events. |
+| `onAction` | `(id, helpers) => void` | Fallback for tapped actions with no `onPress`. |
+
+Action `onPress` (and `onAction`) receive `ErxesMessengerHelpers`:
+`show`, `hide`, `showLauncher`, `hideLauncher`, `setUser`, `clearUser`.
+
+## Advanced — `ErxesNativeIOS` (low-level)
 
 Call `configure` once at startup. It connects in the background so the messenger opens instantly.
 
