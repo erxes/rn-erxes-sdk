@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import MessengerSDK
 import UIKit
@@ -8,15 +9,21 @@ final class RnErxesSdk: RCTEventEmitter {
     /// JS event fired when a chat-mode action (homeActions/drawerActions) is tapped.
     private static let actionEvent = "onErxesAction"
 
+    /// JS event fired when the connect handshake completes (`MessengerSDK.isReady`).
+    private static let readyEvent = "onErxesReady"
+
     /// True while JS has at least one listener attached, so we don't emit into the void.
     private var hasListeners = false
+
+    /// Observes `MessengerSDK.shared.isReady` so we can forward readiness to JS.
+    private var readyCancellable: AnyCancellable?
 
     override static func requiresMainQueueSetup() -> Bool {
         true
     }
 
     override func supportedEvents() -> [String] {
-        [Self.actionEvent]
+        [Self.actionEvent, Self.readyEvent]
     }
 
     override func startObserving() {
@@ -61,6 +68,18 @@ final class RnErxesSdk: RCTEventEmitter {
                 guard let self, self.hasListeners else { return }
                 self.sendEvent(withName: Self.actionEvent, body: ["id": id])
             }
+
+            // Forward the connect handshake to JS as `onErxesReady`. `$isReady`
+            // emits its current value on subscribe, so a `configure()` after the
+            // SDK is already connected still notifies JS. `removeDuplicates`
+            // collapses repeated `true`s into a single emission per connection.
+            self.readyCancellable = MessengerSDK.shared.$isReady
+                .removeDuplicates()
+                .filter { $0 }
+                .sink { [weak self] _ in
+                    guard let self, self.hasListeners else { return }
+                    self.sendEvent(withName: Self.readyEvent, body: nil)
+                }
 
             MessengerSDK.configure(
                 MessengerConfig(

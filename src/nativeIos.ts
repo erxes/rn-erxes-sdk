@@ -56,6 +56,9 @@ type NativeIOSModule = {
 /** Native event name emitted when a chat-mode action is tapped. */
 const ACTION_EVENT = 'onErxesAction';
 
+/** Native event name emitted when the connect handshake completes. */
+const READY_EVENT = 'onErxesReady';
+
 const LINKING_ERROR =
   "The rn-erxes-sdk native iOS module is not linked. Run `pod install` in your app's ios directory and rebuild the app.";
 
@@ -117,6 +120,18 @@ export const ErxesNativeIOS = {
     return emitter.addListener(ACTION_EVENT, (event: { id: string }) =>
       handler(event.id)
     );
+  },
+  /**
+   * Listen for the connect handshake completing — i.e. the messenger is ready
+   * (`MessengerSDK.isReady`). Fires once per connection; if already connected
+   * when you subscribe via a fresh `configure`, it fires again. Returns a
+   * subscription — call `.remove()` to stop listening.
+   */
+  addReadyListener(handler: () => void): EmitterSubscription {
+    const emitter = new NativeEventEmitter(
+      getNativeModule() as unknown as NativeModule
+    );
+    return emitter.addListener(READY_EVENT, () => handler());
   },
 };
 

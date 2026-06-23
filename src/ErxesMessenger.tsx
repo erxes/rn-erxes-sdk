@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
 import { ErxesNativeIOS, type NativeIOSUser } from './nativeIos';
@@ -75,10 +75,19 @@ export type ErxesMessengerProps = {
   /** Chat-mode drawer top action rows. Ignored in `'classic'`. */
   drawerActions?: ErxesAction[];
 
+  /**
+   * Rendered while the SDK is configuring (between `onLoad` and
+   * `onReady`/`onError`), e.g. a spinner shown before the native messenger
+   * appears. Returns `null` otherwise. Defaults to rendering nothing.
+   */
+  renderLoading?: () => ReactNode;
+
   /** Fired when setup starts. */
   onLoad?: () => void;
-  /** Fired after native `configure` succeeds. */
+  /** Fired when the connection handshake completes (the messenger is ready). */
   onReady?: () => void;
+  /** Fired when the loading state changes (`true` while configuring). */
+  onLoadingChange?: (loading: boolean) => void;
   /** Fired when the messenger is shown. */
   onOpen?: () => void;
   /** Fired when the messenger is hidden. */
@@ -124,17 +133,41 @@ export function ErxesMessenger({
   launcherVisible,
   homeActions = [],
   drawerActions = [],
+  renderLoading,
   onLoad,
   onReady,
   onOpen,
   onClose,
   onError,
   onAction,
+  onLoadingChange,
 }: ErxesMessengerProps) {
   // Keep the latest actions/callback in refs so the action listener (registered
   // once below) always dispatches against current props without re-subscribing.
   const actionsRef = useRef<ErxesAction[]>([]);
   const onActionRef = useRef(onAction);
+  const onLoadingChangeRef = useRef(onLoadingChange);
+  // Tracks whether we believe the messenger is currently presented, so we never
+  // double-present (chat mode auto-presents inside `configure()`) or fire a
+  // redundant show/hide. Native gives us no presentation callback, so this is our
+  // best-effort intent mirror.
+  const shownRef = useRef(false);
+
+  // Flips true only after native `configure()` resolves. The controlled-`visible`
+  // effect gates on this so it never calls `showMessenger()` before `configure()`
+  // (the native SDK asserts on that ordering).
+  const [configured, setConfigured] = useState(false);
+  // True while configuring (between `onLoad` and `onReady`/`onError`); drives
+  // `renderLoading`.
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    onLoadingChangeRef.current = onLoadingChange;
+  }, [onLoadingChange]);
+
+  useEffect(() => {
+    onLoadingChangeRef.current?.(loading);
+  }, [loading]);
 
   useEffect(() => {
     actionsRef.current = [...homeActions, ...drawerActions];
@@ -146,9 +179,17 @@ export function ErxesMessenger({
       return;
     }
 
+    setConfigured(false);
+
     const helpers: ErxesMessengerHelpers = {
-      show: () => ErxesNativeIOS.showMessenger(),
-      hide: () => ErxesNativeIOS.hideMessenger(),
+      show: async () => {
+        await ErxesNativeIOS.showMessenger();
+        shownRef.current = true;
+      },
+      hide: async () => {
+        await ErxesNativeIOS.hideMessenger();
+        shownRef.current = false;
+      },
       showLauncher: () => ErxesNativeIOS.showLauncher(),
       hideLauncher: () => ErxesNativeIOS.hideLauncher(),
       setUser: (nextUser) => ErxesNativeIOS.setUser(nextUser),
@@ -166,8 +207,16 @@ export function ErxesMessenger({
       await onActionRef.current?.(id, helpers);
     });
 
+    // Connection complete (native `MessengerSDK.isReady`): the messenger is
+    // truly ready, so end the loading state and notify the host.
+    const readySub = ErxesNativeIOS.addReadyListener(() => {
+      setLoading(false);
+      onReady?.();
+    });
+
     async function setup() {
       try {
+        setLoading(true);
         onLoad?.();
 
         if (user) {
@@ -186,19 +235,45 @@ export function ErxesMessenger({
           drawerActions: stripActions(drawerActions),
         });
 
-        onReady?.();
+        // `configure()` only kicks off the async connect; `onReady` and the end
+        // of `loading` are driven by the ready listener above, not here.
 
-        if (autoOpen) {
-          await ErxesNativeIOS.showMessenger();
-          onOpen?.();
+        // Decide the initial open state. If `visible` is controlled it wins;
+        // otherwise fall back to `autoOpen` (defaults to true in chat mode).
+        const shouldOpen = visible ?? autoOpen;
+
+        if (displayMode === 'chat') {
+          // Chat mode auto-presents itself inside `configure()` — never call
+          // `showMessenger()` for the initial open or we'd present a second one.
+          if (shouldOpen) {
+            shownRef.current = true;
+            onOpen?.();
+          } else {
+            // Caller wants it closed: undo the native auto-present.
+            await ErxesNativeIOS.hideMessenger();
+            shownRef.current = false;
+          }
+        } else {
+          // Classic mode: configure does not open anything. Show the launcher
+          // and/or present the sheet explicitly.
+          if (launcherVisible === true) {
+            await ErxesNativeIOS.showLauncher();
+          } else if (launcherVisible === false) {
+            await ErxesNativeIOS.hideLauncher();
+          }
+
+          if (shouldOpen) {
+            await ErxesNativeIOS.showMessenger();
+            shownRef.current = true;
+            onOpen?.();
+          }
         }
 
-        if (launcherVisible === true) {
-          await ErxesNativeIOS.showLauncher();
-        } else if (launcherVisible === false) {
-          await ErxesNativeIOS.hideLauncher();
-        }
+        setConfigured(true);
       } catch (error) {
+        // Setup failed before the connection could complete — end loading here
+        // since the ready listener will never fire.
+        setLoading(false);
         onError?.(error);
       }
     }
@@ -207,9 +282,11 @@ export function ErxesMessenger({
 
     return () => {
       sub.remove();
+      readySub.remove();
 
-      if (autoHideOnUnmount) {
+      if (autoHideOnUnmount && shownRef.current) {
         ErxesNativeIOS.hideMessenger();
+        shownRef.current = false;
         onClose?.();
       }
     };
@@ -219,19 +296,28 @@ export function ErxesMessenger({
   }, [integrationId, endpoint, serverUrl, subDomain, displayMode]);
 
   useEffect(() => {
-    if (Platform.OS !== 'ios' || visible === undefined) {
+    // Wait until `configure()` has resolved — otherwise `showMessenger()` would
+    // race ahead of it and trip the native configure-before-show assertion. The
+    // initial open is handled in `setup()`; this only reacts to later changes.
+    if (Platform.OS !== 'ios' || visible === undefined || !configured) {
       return;
     }
 
-    if (visible) {
+    if (visible && !shownRef.current) {
       ErxesNativeIOS.showMessenger();
+      shownRef.current = true;
       onOpen?.();
-    } else {
+    } else if (!visible && shownRef.current) {
       ErxesNativeIOS.hideMessenger();
+      shownRef.current = false;
       onClose?.();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+  }, [visible, configured]);
+
+  if (loading && renderLoading) {
+    return renderLoading();
+  }
 
   return null;
 }

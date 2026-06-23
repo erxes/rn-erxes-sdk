@@ -217,6 +217,8 @@ focus so the messenger shows/hides as the user navigates, and add a header actio
 jump to another screen.
 
 ```tsx
+import { ActivityIndicator, View } from 'react-native';
+
 const isFocused = useIsFocused();
 
 <ErxesMessenger
@@ -225,6 +227,11 @@ const isFocused = useIsFocused();
   endpoint={ENDPOINT}
   displayMode="chat"
   user={CURRENT_USER}
+  renderLoading={() => (
+    <View style={{ flex: 1, justifyContent: 'center' }}>
+      <ActivityIndicator />
+    </View>
+  )}
   homeActions={[
     {
       id: 'profile',
@@ -238,6 +245,10 @@ const isFocused = useIsFocused();
   ]}
 />
 ```
+
+`renderLoading` shows your own UI until the connection handshake completes
+(`onReady`). Note that chat mode also shows its own loading indicator inside the
+full-screen native view, so `renderLoading` is most useful in classic mode.
 
 ### Example 3 — Settings → Support screen with a close button
 
@@ -283,7 +294,9 @@ messenger and pops the screen.
 | `autoHideOnUnmount` | `boolean` | Hide on unmount. Defaults to `true`. |
 | `launcherVisible` | `boolean` | Show/hide the floating launcher after configure. |
 | `homeActions` / `drawerActions` | `ErxesAction[]` | `{ id, title, systemIcon, onPress? }`. Chat mode only. |
+| `renderLoading` | `() => ReactNode` | Rendered while configuring (between `onLoad` and `onReady`/`onError`), e.g. a spinner. Defaults to nothing. |
 | `onLoad` / `onReady` / `onOpen` / `onClose` / `onError` | callbacks | Lifecycle events. |
+| `onLoadingChange` | `(loading: boolean) => void` | Fired when the loading state changes (`true` while configuring). |
 | `onAction` | `(id, helpers) => void` | Fallback for tapped actions with no `onPress`. |
 
 Action `onPress` (and `onAction`) receive `ErxesMessengerHelpers`:
@@ -348,6 +361,16 @@ const sub = ErxesNativeIOS.addActionListener((id) => {
   // navigate / open a modal based on id
 });
 // sub.remove() on cleanup
+```
+
+To know when the messenger has finished connecting (e.g. to hide your own
+spinner), listen for the ready event:
+
+```tsx
+const readySub = ErxesNativeIOS.addReadyListener(() => {
+  // connection handshake complete — messenger is ready
+});
+// readySub.remove() on cleanup
 ```
 
 Chat mode also supports voice messages — see the [Native iOS guide](docs/native-ios.md) for the required `Info.plist` permissions.
