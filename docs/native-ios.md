@@ -1,7 +1,7 @@
 # Native iOS Guide
 
 `ErxesNativeIOS` bridges the native SwiftUI erxes messenger
-([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.6`)
+([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.7`)
 into your React Native app.
 
 ## Requirements

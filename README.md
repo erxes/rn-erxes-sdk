@@ -122,7 +122,7 @@ _Coming soon._
 # rn-erxes-sdk
 
 A React Native bridge for the native SwiftUI erxes messenger
-([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.6`).
+([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.7`).
 Supports the classic widget and the full-screen **chat mode** (with voice
 messages and header/drawer actions).
 
