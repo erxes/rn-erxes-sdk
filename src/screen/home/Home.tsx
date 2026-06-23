@@ -14,6 +14,7 @@ import React, { useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation } from '@apollo/client';
 import AppContext from '../../context/Context';
+import { logger } from '../../utils/logger';
 import Supporters from '../greetings/Supporters';
 import Social from '../greetings/Social';
 import { messengerTheme } from '../../theme';
@@ -92,7 +93,8 @@ const Home = () => {
     })
       .then((res: any) => {
         if (res.errors) {
-          return console.log(res.errors);
+          logger.error('insertMessage errors', res.errors);
+          return;
         }
 
         const insertedMessage = res.data.widgetsInsertMessage;
@@ -104,7 +106,7 @@ const Home = () => {
         }
       })
       .catch((err: any) => {
-        console.log(err);
+        logger.error('insertMessage failed', err);
       })
       .finally(() => {
         sendingRef.current = false;
