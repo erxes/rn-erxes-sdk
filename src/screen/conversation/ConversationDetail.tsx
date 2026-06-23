@@ -32,6 +32,7 @@ import { BackIcon } from '../../components/Icons';
 import DateSeparator from '../../components/conversation/DateSeparator';
 import WelcomeMessage from '../../components/conversation/WelcomeMessage';
 import TypingStatus from '../../components/conversation/TypingStatus';
+import { logger } from '../../utils/logger';
 
 const hasUserDetails = (user: any): boolean =>
   Boolean(user?.details?.fullName || user?.details?.avatar);
@@ -301,7 +302,8 @@ const ConversationDetail = () => {
     })
       .then((res: any) => {
         if (res.errors) {
-          return console.log(res.errors);
+          logger.error('insertMessage errors', res.errors);
+          return;
         }
 
         const insertedMessage = res.data.widgetsInsertMessage;
@@ -326,7 +328,7 @@ const ConversationDetail = () => {
         }
       })
       .catch((err: any) => {
-        console.log(err);
+        logger.error('insertMessage failed', err);
       })
       .finally(() => {
         sendingRef.current = false;

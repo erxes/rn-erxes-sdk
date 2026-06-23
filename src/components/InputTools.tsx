@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { messengerTheme } from '../theme';
+import { logger } from '../utils/logger';
 import {
   SendIcon,
   AttachmentIcon,
@@ -107,7 +108,7 @@ const InputTools: React.FC<any> = (props: any) => {
       const uploaded = await uploadFile(file, subDomain);
       setAttachments((prev) => [...prev, uploaded]);
     } catch (err) {
-      console.log('attachment upload failed', err);
+      logger.error('attachment upload failed', err);
       const message = err instanceof Error ? err.message : '';
       showUploadError(
         message.includes('Invalid configured file type')

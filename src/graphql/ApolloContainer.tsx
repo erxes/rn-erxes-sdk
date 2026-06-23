@@ -10,6 +10,7 @@ import {
 import { getMainDefinition } from '@apollo/client/utilities';
 import { onError } from '@apollo/client/link/error';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { logger } from '../utils/logger';
 import { createClient } from 'graphql-ws';
 
 const ApolloContainer = ({ children, subDomain }: any) => {
@@ -28,8 +29,8 @@ const ApolloContainer = ({ children, subDomain }: any) => {
   );
 
   const logoutLink = onError(({ networkError, graphQLErrors }) => {
-    console.log('--netError', networkError);
-    console.log('--gqlError', graphQLErrors);
+    logger.error('network error', networkError);
+    logger.error('graphQL errors', graphQLErrors);
   });
 
   const httpLink = createHttpLink({

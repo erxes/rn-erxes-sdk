@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Widget from './Widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createObjectIdLikeString } from './utils/objectId';
+import { logger } from './utils/logger';
 import ApolloContainer from './graphql/ApolloContainer';
 
 export type PropTypes = {
@@ -69,7 +70,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
           })
           .catch((e) => {
             setLoading(false);
-            console.log('Failed on cachedConversationId', e.message);
+            logger.error('Failed on cachedConversationId', e.message);
           });
       })
       .catch((e) => {
@@ -78,7 +79,7 @@ const ErxesSDK: React.FC<PropTypes> = ({
           visitorId: createObjectIdLikeString(),
         });
         setLoading(false);
-        console.log('Failed on cachedCustomerId', e.message);
+        logger.error('Failed on cachedCustomerId', e.message);
       });
   }, []);
 

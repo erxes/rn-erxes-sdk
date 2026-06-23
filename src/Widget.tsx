@@ -9,6 +9,7 @@ import {
   widgetsSaveBrowserInfo,
 } from './graphql/mutation';
 import AppContext from './context/Context';
+import { logger } from './utils/logger';
 import ConversationDetail from './screen/conversation/ConversationDetail';
 import MessengerShell from './components/MessengerShell';
 import { TouchableOpacity } from 'react-native';
@@ -119,7 +120,7 @@ const Widget = (props: any) => {
           return res;
         })
         .catch((err) => {
-          console.log(err);
+          logger.error('readConversationMessages failed', err);
           return null;
         });
     },
@@ -210,7 +211,7 @@ const Widget = (props: any) => {
           refetchUnreadConversations();
         },
         error(err) {
-          console.log(err);
+          logger.error('unread conversations subscription error', err);
         },
       });
 
@@ -248,7 +249,7 @@ const Widget = (props: any) => {
         }
       })
       .catch((err) => {
-        console.log(err);
+        logger.error('connect failed', err);
       });
   }, []);
 
@@ -261,10 +262,10 @@ const Widget = (props: any) => {
         },
       })
         .then(() => {
-          console.log('browser info saved');
+          logger.info('browser info saved');
         })
         .catch((err) => {
-          console.log(err);
+          logger.error('saveBrowserInfo failed', err);
         });
     }
   }, [connection]);
