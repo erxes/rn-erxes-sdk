@@ -50,6 +50,7 @@ type NativeIOSModule = {
   showMessenger(): Promise<void>;
   showLauncher(): Promise<void>;
   hideLauncher(): Promise<void>;
+  hideMessenger(): Promise<void>;
 };
 
 /** Native event name emitted when a chat-mode action is tapped. */
@@ -99,6 +100,9 @@ export const ErxesNativeIOS = {
   },
   hideLauncher() {
     return getNativeModule().hideLauncher();
+  },
+  hideMessenger() {
+    return getNativeModule().hideMessenger();
   },
   /**
    * Listen for chat-mode action taps (`homeActions` / `drawerActions`). The
