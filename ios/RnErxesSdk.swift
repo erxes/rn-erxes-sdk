@@ -152,6 +152,17 @@ final class RnErxesSdk: RCTEventEmitter {
         }
     }
 
+    @objc(hideMessenger:rejecter:)
+    func hideMessenger(
+    _ resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+    Task { @MainActor in
+        MessengerSDK.hideMessenger()
+        resolve(nil)
+    }
+    }
+
     private static func endpoint(from options: NSDictionary) -> String? {
         if let endpoint = string(options["endpoint"]) ?? string(options["serverUrl"]) {
             return endpoint
