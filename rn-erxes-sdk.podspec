@@ -36,10 +36,10 @@ Pod::Spec.new do |s|
     spm_dependency(
       s,
       url: 'https://github.com/erxes/erxes-ios-sdk.git',
-      requirement: { :kind => 'exactVersion', :version => '0.30.9' },
+      requirement: { :kind => 'exactVersion', :version => '0.30.10' },
       products: ['MessengerSDK']
     )
   else
-    raise 'rn-erxes-sdk requires React Native 0.81+ CocoaPods SPM support to install MessengerSDK 0.30.9'
+    raise 'rn-erxes-sdk requires React Native 0.81+ CocoaPods SPM support to install MessengerSDK 0.30.10'
   end
 end
