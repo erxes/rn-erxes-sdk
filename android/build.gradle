@@ -64,12 +64,19 @@ dependencies {
   // The erxes Android Messenger SDK (chat mode).
   implementation "com.erxes:messenger-sdk:0.30.1"
 
-  // Needed at compile time to construct `Appearance(primaryColor: Color)`. The
-  // SDK pulls these transitively at runtime, but exposes them as `implementation`
-  // (not `api`), so we depend on them explicitly. No Compose compiler is needed —
-  // this module references `Color` only as a data type, it has no @Composable code.
+  // Needed at compile time to reference the Compose types in the SDK's public API:
+  // `Color` for `Appearance(primaryColor)` (ui-graphics) and `ImageVector`, which
+  // `ActionItem`'s constructor defaults reference (ui). The SDK pulls these
+  // transitively at runtime but exposes them as `implementation` (not `api`), so we
+  // depend on them explicitly. No Compose compiler is needed — these are referenced
+  // only as data types; this module has no @Composable code.
   implementation platform("androidx.compose:compose-bom:2024.12.01")
+  implementation "androidx.compose.ui:ui"
   implementation "androidx.compose.ui:ui-graphics"
+  // For resolving Material icons by name (the `Icons.Filled` receiver). Only the
+  // core icon set is bundled here; hosts add `material-icons-extended` for the
+  // full set (see README / docs).
+  implementation "androidx.compose.material:material-icons-core"
 
   // For the StateFlow (isReady) collector on the main dispatcher.
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"

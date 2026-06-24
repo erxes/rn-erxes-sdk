@@ -106,25 +106,28 @@ Screenshots from the native [`erxes/erxes-ios-sdk`](https://github.com/erxes/erx
   <img src="https://raw.githubusercontent.com/erxes/erxes-ios-sdk/main/screenshots/recent-chats.png" width="220" alt="Recent Chats">
 </p>
 
-### Android 🚧 Upcoming
+### Android ✅ Available (chat mode)
 
-_Coming soon._
-
-> **Platform support:** iOS is fully supported (native SwiftUI messenger). Android support is on the roadmap — see the [TODO](#roadmap) below.
+Backed by the native [`erxes/erxes-android-sdk`](https://github.com/erxes/erxes-android-sdk).
+Android currently implements **chat mode** (`displayMode: 'chat'`); the classic
+floating launcher is iOS-only for now (`showLauncher`/`hideLauncher`/`hideMessenger`
+are no-ops on Android). See [Requirements](#requirements).
 
 ## Roadmap
 
 - [x] iOS native messenger (classic widget + chat mode)
-- [ ] Android native messenger
+- [x] Android native messenger (chat mode)
+- [ ] Android classic widget + floating launcher
 
 ---
 
 # rn-erxes-sdk
 
-A React Native bridge for the native SwiftUI erxes messenger
-([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk) `0.30.7`).
-Supports the classic widget and the full-screen **chat mode** (with voice
-messages and header/drawer actions).
+A React Native bridge for the native erxes messenger — SwiftUI on iOS
+([`erxes/erxes-ios-sdk`](https://github.com/erxes/erxes-ios-sdk)) and Jetpack
+Compose on Android ([`erxes/erxes-android-sdk`](https://github.com/erxes/erxes-android-sdk)).
+iOS supports the classic widget and the full-screen **chat mode** (with voice
+messages and header/drawer actions); Android supports chat mode.
 
 ```tsx
 import { ErxesMessenger } from 'rn-erxes-sdk';
@@ -142,6 +145,7 @@ Two APIs are exported:
 |---|---|
 | iOS | 16.0+ |
 | Swift | 5.9+ |
+| Android | minSdk 24+, Java 17 |
 | React Native | 0.81+ |
 | Expo SDK | 53+ (development build or prebuild — Expo Go not supported) |
 
@@ -178,6 +182,42 @@ Add to `app.json`:
 npx expo prebuild --platform ios
 cd ios && pod install
 npx expo run:ios
+```
+
+### Android
+
+Autolinking picks up the native module — no manual linking. Notes:
+
+- **Chat mode only.** Use `displayMode="chat"`. `minSdk` must be `24+` and the app
+  compiles against Java 17.
+- **Android SDK artifact.** The bridge depends on the native
+  `com.erxes:messenger-sdk`, which your app's Gradle must be able to resolve (from
+  Maven Central / JitPack once published, or `mavenLocal()` for local development).
+- **Action icons (optional).** To use Material icon names for `androidIcon` (e.g.
+  `"AccountCircle"`), add the full Compose Material icon set to your app:
+
+  ```gradle
+  // android/app/build.gradle
+  dependencies {
+      implementation(platform("androidx.compose:compose-bom:2024.12.01"))
+      implementation("androidx.compose.material:material-icons-extended")
+  }
+  ```
+
+  For release (R8/ProGuard) builds, keep the icon classes so name-based lookup
+  survives minification:
+
+  ```pro
+  # android/app/proguard-rules.pro
+  -keep class androidx.compose.material.icons.filled.** { *; }
+  ```
+
+  Alternatively, use a drawable resource instead of a Material icon (no extra
+  dependency) — see [Action icons](#action-icons-ios--android).
+
+```bash
+npx expo prebuild --platform android
+npx expo run:android
 ```
 
 ## Usage — `<ErxesMessenger />` (recommended)
@@ -236,7 +276,8 @@ const isFocused = useIsFocused();
     {
       id: 'profile',
       title: 'Profile',
-      systemIcon: 'person.crop.circle',
+      iosIcon: 'person.crop.circle', // SF Symbol (iOS)
+      androidIcon: 'AccountCircle', // Material icon name (Android)
       onPress: async ({ hide }) => {
         await hide();
         navigation.navigate('Profile', { user: CURRENT_USER });
@@ -267,7 +308,8 @@ messenger and pops the screen.
     {
       id: 'close',
       title: 'Close',
-      systemIcon: 'xmark',
+      iosIcon: 'xmark', // SF Symbol (iOS)
+      androidIcon: 'Close', // Material icon name (Android)
       onPress: async ({ hide }) => {
         await hide();
         navigation.goBack();
@@ -293,7 +335,7 @@ messenger and pops the screen.
 | `autoOpen` | `boolean` | Open after configure. Defaults to `true` in chat mode. |
 | `autoHideOnUnmount` | `boolean` | Hide on unmount. Defaults to `true`. |
 | `launcherVisible` | `boolean` | Show/hide the floating launcher after configure. |
-| `homeActions` / `drawerActions` | `ErxesAction[]` | `{ id, title, systemIcon, onPress? }`. Chat mode only. |
+| `homeActions` / `drawerActions` | `ErxesAction[]` | `{ id, title, iosIcon?, androidIcon?, onPress? }`. Chat mode only. See [Action icons](#action-icons-ios--android). |
 | `renderLoading` | `() => ReactNode` | Rendered while configuring (between `onLoad` and `onReady`/`onError`), e.g. a spinner. Defaults to nothing. |
 | `onLoad` / `onReady` / `onOpen` / `onClose` / `onError` | callbacks | Lifecycle events. |
 | `onLoadingChange` | `(loading: boolean) => void` | Fired when the loading state changes (`true` while configuring). |
@@ -301,6 +343,35 @@ messenger and pops the screen.
 
 Action `onPress` (and `onAction`) receive `ErxesMessengerHelpers`:
 `show`, `hide`, `showLauncher`, `hideLauncher`, `setUser`, `clearUser`.
+On Android, `showLauncher`/`hideLauncher`/`hide` are no-ops (chat mode only).
+
+### Action icons (iOS & Android)
+
+Each `homeActions` / `drawerActions` entry takes platform-specific icon fields —
+the platform you're not running on is ignored:
+
+| Field | Platform | Value |
+|---|---|---|
+| `iosIcon` | iOS | An [SF Symbol](https://developer.apple.com/sf-symbols/) name, e.g. `'person.crop.circle'`. |
+| `androidIcon` | Android | A Compose **Material icon name** (e.g. `'AccountCircle'`, `'Search'`) **or** a **drawable resource name** in your app (e.g. `'ic_profile'`). |
+
+```tsx
+homeActions={[
+  { id: 'profile', title: 'Profile', iosIcon: 'person.crop.circle', androidIcon: 'AccountCircle' },
+]}
+```
+
+On Android `androidIcon` resolves in order: Material icon name → drawable resource
+→ the messenger's default icon if neither matches.
+
+- **Material icon names** are the Compose `Icons.Filled.*` names in PascalCase.
+  Only a few ship in `material-icons-core`; for the full set add
+  `material-icons-extended` (and a release keep rule) — see
+  [Android setup](#android).
+- **Drawable resources** need no extra dependency: drop a vector/PNG under
+  `android/app/src/main/res/drawable/` and pass its file name (without extension).
+
+> `systemIcon` is still accepted as a deprecated alias for `iosIcon`.
 
 ## Advanced — `ErxesNativeIOS` (low-level)
 
@@ -353,8 +424,12 @@ ErxesNativeIOS.configure({
   integrationId: 'YOUR_INTEGRATION_ID',
   subDomain: 'yourcompany.erxes.io',
   displayMode: 'chat',
-  homeActions: [{ id: 'orders', title: 'My Orders', systemIcon: 'bag' }],
-  drawerActions: [{ id: 'settings', title: 'Settings', systemIcon: 'gearshape' }],
+  homeActions: [
+    { id: 'orders', title: 'My Orders', iosIcon: 'bag', androidIcon: 'ShoppingBag' },
+  ],
+  drawerActions: [
+    { id: 'settings', title: 'Settings', iosIcon: 'gearshape', androidIcon: 'Settings' },
+  ],
 });
 
 const sub = ErxesNativeIOS.addActionListener((id) => {
