@@ -1,6 +1,8 @@
 package com.erxessdk
 
+import androidx.compose.material.icons.Icons
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.erxes.messenger.ErxesMessenger
 import com.erxes.messenger.config.ActionItem
 import com.erxes.messenger.config.Appearance
@@ -21,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
@@ -91,15 +92,15 @@ class RnErxesSdkModule(private val reactContext: ReactApplicationContext) :
     }
 
     // Forward the connect handshake to JS as `onErxesReady`. `isReady` is a
-    // StateFlow, so it replays its current value on collection — a `configure()`
-    // after the SDK is already connected still notifies JS. `distinctUntilChanged`
-    // + `filter { it }` mirror the iOS Combine pipeline (one emission per connect).
+    // StateFlow, so it replays its current value on collection (a `configure()`
+    // after the SDK is already connected still notifies JS) and conflates
+    // duplicates, so `filter { it }` emits once per connection — mirroring the
+    // iOS Combine pipeline (`removeDuplicates().filter { $0 }`).
     readyScope?.cancel()
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     readyScope = scope
     scope.launch {
       ErxesMessenger.isReady
-        .distinctUntilChanged()
         .filter { it }
         .collect {
           if (listenerCount > 0) {
@@ -112,6 +113,17 @@ class RnErxesSdkModule(private val reactContext: ReactApplicationContext) :
     // callbacks, so run it on the main thread.
     UiThreadUtil.runOnUiThread {
       ErxesMessenger.configure(reactContext.applicationContext, config)
+
+      // Present chat mode immediately (mirroring iOS, where `configure()` auto-
+      // presents). The SDK's own auto-present only fires on the *next* activity
+      // resume, but React Native calls `configure()` after the host activity is
+      // already resumed — so that event never comes. Present from the current
+      // activity instead. If there's no activity yet, the SDK's lifecycle
+      // fallback still covers it on the next resume.
+      if (displayMode == DisplayMode.CHAT) {
+        reactContext.currentActivity?.let { ErxesMessenger.show(it) }
+      }
+
       promise.resolve(null)
     }
   }
@@ -146,7 +158,7 @@ class RnErxesSdkModule(private val reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun showMessenger(promise: Promise) {
-    val activity = currentActivity
+    val activity = reactContext.currentActivity
     if (activity == null) {
       promise.reject("missing_presenter", "Unable to find an activity to present from")
       return
@@ -222,10 +234,12 @@ class RnErxesSdkModule(private val reactContext: ReactApplicationContext) :
   }
 
   /**
-   * Parse `[{ id, title, systemIcon }]` from JS into `[ActionItem]`. Entries
-   * without an `id` are skipped. The iOS `systemIcon` (an SF Symbol name) has no
-   * Android equivalent — Android `ActionItem` icons are vectors/drawables — so it
-   * is ignored; the action still works via `id`/`title`.
+   * Parse `[{ id, title, androidIcon }]` from JS into `[ActionItem]`. Entries
+   * without an `id` are skipped. `androidIcon` resolves, in order, to a Compose
+   * Material icon by name (e.g. `"AccountCircle"`, `"Search"`) or a host-app
+   * drawable resource name (e.g. `"ic_profile"`). When absent or unresolved, the
+   * messenger renders its default icon. The iOS `systemIcon` (an SF Symbol) has no
+   * Android equivalent and is ignored here.
    */
   private fun actionItems(value: ReadableArray?): List<ActionItem> {
     if (value == null) return emptyList()
@@ -233,9 +247,43 @@ class RnErxesSdkModule(private val reactContext: ReactApplicationContext) :
     for (i in 0 until value.size()) {
       val map = value.getMap(i) ?: continue
       val id = map.stringOrNull("id") ?: continue
-      items.add(ActionItem(id = id, title = map.stringOrNull("title") ?: ""))
+      val iconName = map.stringOrNull("androidIcon")
+      val vector = materialIcon(iconName)
+      items.add(
+        ActionItem(
+          id = id,
+          title = map.stringOrNull("title") ?: "",
+          imageVector = vector,
+          drawableRes = if (vector == null) drawableRes(iconName) else null,
+        )
+      )
     }
     return items
+  }
+
+  /**
+   * Resolve a Compose Material (filled) icon by name, e.g. `"AccountCircle"` →
+   * `Icons.Filled.AccountCircle`. Only a handful of icons ship in
+   * `material-icons-core`; for the full set the host app must depend on
+   * `androidx.compose.material:material-icons-extended` (and keep these classes in
+   * release builds). Returns null if the name isn't a known Material icon.
+   */
+  private fun materialIcon(name: String?): ImageVector? {
+    if (name.isNullOrEmpty()) return null
+    return try {
+      val cls = Class.forName("androidx.compose.material.icons.filled.${name}Kt")
+      val getter = cls.getMethod("get$name", Icons.Filled::class.java)
+      getter.invoke(null, Icons.Filled) as? ImageVector
+    } catch (t: Throwable) {
+      null
+    }
+  }
+
+  /** Resolve a host-app drawable resource name to its id, or null if absent/unknown. */
+  private fun drawableRes(name: String?): Int? {
+    if (name.isNullOrEmpty()) return null
+    val id = reactContext.resources.getIdentifier(name, "drawable", reactContext.packageName)
+    return id.takeIf { it != 0 }
   }
 
   /** Parse a `#RGB`/`#RRGGBB`/`#RRGGBBAA` hex string into a Compose [Color]. */

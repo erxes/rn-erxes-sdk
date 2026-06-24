@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
-import { ErxesNativeIOS, type NativeIOSUser } from './nativeIos';
+import {
+  ErxesNativeIOS,
+  type NativeIOSAction,
+  type NativeIOSUser,
+} from './nativeIos';
 
 /**
  * The identified end user. Same shape the native bridge expects — passing
@@ -33,8 +37,18 @@ export type ErxesAction = {
   id: string;
   /** Display title (drawer rows / accessibility label for header icons). */
   title: string;
-  /** SF Symbol name, e.g. "person.crop.circle". */
-  systemIcon: string;
+  /** iOS SF Symbol name, e.g. "person.crop.circle". */
+  iosIcon?: string;
+  /**
+   * Android drawable resource name in your app, e.g. `"ic_profile"`. Add the
+   * drawable under `android/app/src/main/res/drawable/`. When omitted or not
+   * found, the messenger renders its default icon.
+   */
+  androidIcon?: string;
+  /**
+   * @deprecated Use {@link iosIcon}. Kept as an alias for the iOS SF Symbol.
+   */
+  systemIcon?: string;
   /** Runs when this action is tapped. Receives imperative {@link ErxesMessengerHelpers}. */
   onPress?: (helpers: ErxesMessengerHelpers) => void | Promise<void>;
 };
@@ -102,12 +116,19 @@ export type ErxesMessengerProps = {
 };
 
 /**
- * Drop `onPress` so only the data-only fields the native bridge understands
- * (`id`/`title`/`systemIcon`) cross over. React Native cannot send JS functions
- * to native, so `onPress` is dispatched on the JS side via the action listener.
+ * Map to the data-only shape the native bridge understands, dropping `onPress`
+ * (React Native cannot send JS functions to native — taps are dispatched on the
+ * JS side via the action listener). `iosIcon` (falling back to the deprecated
+ * `systemIcon`) becomes the iOS `systemIcon`; `androidIcon` is forwarded for
+ * Android to resolve to a drawable.
  */
-function stripActions(actions: ErxesAction[]) {
-  return actions.map(({ onPress: _onPress, ...nativeAction }) => nativeAction);
+function stripActions(actions: ErxesAction[]): NativeIOSAction[] {
+  return actions.map(({ id, title, iosIcon, systemIcon, androidIcon }) => ({
+    id,
+    title,
+    systemIcon: iosIcon ?? systemIcon ?? '',
+    androidIcon,
+  }));
 }
 
 /**

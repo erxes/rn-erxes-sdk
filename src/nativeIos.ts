@@ -16,8 +16,14 @@ type NativeIOSAction = {
   id: string;
   /** Display title (drawer rows / accessibility label for header icons). */
   title: string;
-  /** SF Symbol name, e.g. "magnifyingglass". */
+  /** iOS SF Symbol name, e.g. "magnifyingglass". Ignored on Android. */
   systemIcon: string;
+  /**
+   * Android drawable resource name in the host app (e.g. `"ic_profile"`),
+   * resolved to a drawable at runtime. Ignored on iOS. When omitted (or not
+   * found), the messenger renders its default icon.
+   */
+  androidIcon?: string;
 };
 
 type NativeIOSConfig = {
