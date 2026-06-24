@@ -1,0 +1,76 @@
+// Android native module for rn-erxes-sdk. Bridges the erxes Android Messenger
+// SDK (com.erxes:messenger-sdk) to React Native, mirroring the iOS bridge in
+// `ios/RnErxesSdk.swift`. Android currently implements chat mode only.
+//
+// Plugins (Android Gradle Plugin, Kotlin) come from the consuming app's
+// buildscript classpath via React Native autolinking, so this module does not
+// declare its own buildscript block — it is always built linked into an app
+// (or an Expo prebuild), never standalone.
+apply plugin: "com.android.library"
+apply plugin: "org.jetbrains.kotlin.android"
+
+def getExtOrDefault(name) {
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["RnErxesSdk_" + name]
+}
+
+def getExtOrIntegerDefault(name) {
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["RnErxesSdk_" + name]).toInteger()
+}
+
+android {
+  namespace "com.erxessdk"
+
+  compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
+
+  defaultConfig {
+    // The erxes Android SDK requires API 24+.
+    minSdkVersion Math.max(24, getExtOrIntegerDefault("minSdkVersion"))
+    targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+  }
+
+  // The erxes Android SDK is compiled against Java 17.
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = "17"
+  }
+}
+
+repositories {
+  google()
+  mavenCentral()
+  // The erxes Android SDK is not published to a remote Maven repo yet. For local
+  // development, install it with:
+  //   ./gradlew :messenger-sdk:publishToMavenLocal   (run in the android-sdk checkout)
+  // which drops com.erxes:messenger-sdk:<version> into ~/.m2. When the SDK is
+  // published remotely (e.g. JitPack/Maven Central), add that repo here and drop
+  // mavenLocal().
+  mavenLocal()
+}
+
+dependencies {
+  // Version is supplied by the consuming app's React Native Gradle setup.
+  implementation "com.facebook.react:react-android"
+
+  // The erxes Android Messenger SDK (chat mode).
+  implementation "com.erxes:messenger-sdk:0.30.1"
+
+  // Needed at compile time to construct `Appearance(primaryColor: Color)`. The
+  // SDK pulls these transitively at runtime, but exposes them as `implementation`
+  // (not `api`), so we depend on them explicitly. No Compose compiler is needed —
+  // this module references `Color` only as a data type, it has no @Composable code.
+  implementation platform("androidx.compose:compose-bom:2024.12.01")
+  implementation "androidx.compose.ui:ui-graphics"
+
+  // For the StateFlow (isReady) collector on the main dispatcher.
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
+}

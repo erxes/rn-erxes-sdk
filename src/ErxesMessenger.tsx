@@ -175,7 +175,7 @@ export function ErxesMessenger({
   }, [homeActions, drawerActions, onAction]);
 
   useEffect(() => {
-    if (Platform.OS !== 'ios') {
+    if (Platform.OS !== 'ios' && Platform.OS !== 'android') {
       return;
     }
 
@@ -299,7 +299,11 @@ export function ErxesMessenger({
     // Wait until `configure()` has resolved — otherwise `showMessenger()` would
     // race ahead of it and trip the native configure-before-show assertion. The
     // initial open is handled in `setup()`; this only reacts to later changes.
-    if (Platform.OS !== 'ios' || visible === undefined || !configured) {
+    if (
+      (Platform.OS !== 'ios' && Platform.OS !== 'android') ||
+      visible === undefined ||
+      !configured
+    ) {
       return;
     }
 

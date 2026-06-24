@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!--
+    The SDK declares its own MessengerActivity in its manifest, which merges in
+    automatically. This module only needs the manifest shell.
+  -->
+</manifest>

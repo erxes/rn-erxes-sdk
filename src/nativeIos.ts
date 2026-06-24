@@ -60,13 +60,17 @@ const ACTION_EVENT = 'onErxesAction';
 const READY_EVENT = 'onErxesReady';
 
 const LINKING_ERROR =
-  "The rn-erxes-sdk native iOS module is not linked. Run `pod install` in your app's ios directory and rebuild the app.";
+  Platform.OS === 'android'
+    ? 'The rn-erxes-sdk native Android module is not linked. Rebuild the Android app (e.g. `npx react-native run-android`).'
+    : "The rn-erxes-sdk native iOS module is not linked. Run `pod install` in your app's ios directory and rebuild the app.";
 
 const nativeModule = NativeModules.RnErxesSdk as NativeIOSModule | undefined;
 
 function getNativeModule(): NativeIOSModule {
-  if (Platform.OS !== 'ios') {
-    throw new Error('Erxes native messenger is only available on iOS.');
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') {
+    throw new Error(
+      'Erxes native messenger is only available on iOS and Android.'
+    );
   }
 
   if (!nativeModule) {
