@@ -1,5 +1,5 @@
 // Android native module for rn-erxes-sdk. Bridges the erxes Android Messenger
-// SDK (com.erxes:messenger-sdk) to React Native, mirroring the iOS bridge in
+// SDK (io.github.munkhorgilb:messenger-sdk) to React Native, mirroring the iOS bridge in
 // `ios/RnErxesSdk.swift`. Android currently implements chat mode only.
 //
 // Plugins (Android Gradle Plugin, Kotlin) come from the consuming app's
@@ -48,13 +48,6 @@ android {
 repositories {
   google()
   mavenCentral()
-  // The erxes Android SDK is not published to a remote Maven repo yet. For local
-  // development, install it with:
-  //   ./gradlew :messenger-sdk:publishToMavenLocal   (run in the android-sdk checkout)
-  // which drops com.erxes:messenger-sdk:<version> into ~/.m2. When the SDK is
-  // published remotely (e.g. JitPack/Maven Central), add that repo here and drop
-  // mavenLocal().
-  mavenLocal()
 }
 
 dependencies {
@@ -62,7 +55,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
 
   // The erxes Android Messenger SDK (chat mode).
-  implementation "com.erxes:messenger-sdk:0.30.1"
+  implementation "io.github.munkhorgilb:messenger-sdk:0.30.2"
 
   // Needed at compile time to reference the Compose types in the SDK's public API:
   // `Color` for `Appearance(primaryColor)` (ui-graphics) and `ImageVector`, which
