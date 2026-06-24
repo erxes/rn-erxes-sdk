@@ -141,13 +141,13 @@ Two APIs are exported:
 
 ## Requirements
 
-| | |
-|---|---|
-| iOS | 16.0+ |
-| Swift | 5.9+ |
-| Android | minSdk 24+, Java 17 |
-| React Native | 0.81+ |
-| Expo SDK | 53+ (development build or prebuild — Expo Go not supported) |
+|              |                                                             |
+| ------------ | ----------------------------------------------------------- |
+| iOS          | 16.0+                                                       |
+| Swift        | 5.9+                                                        |
+| Android      | minSdk 24+, Java 17                                         |
+| React Native | 0.81+                                                       |
+| Expo SDK     | 53+ (development build or prebuild — Expo Go not supported) |
 
 ## Docs
 
@@ -191,8 +191,7 @@ Autolinking picks up the native module — no manual linking. Notes:
 - **Chat mode only.** Use `displayMode="chat"`. `minSdk` must be `24+` and the app
   compiles against Java 17.
 - **Android SDK artifact.** The bridge depends on the native
-  `com.erxes:messenger-sdk`, which your app's Gradle must be able to resolve (from
-  Maven Central / JitPack once published, or `mavenLocal()` for local development).
+  `io.github.munkhorgilb:messenger-sdk:0.30.2`, resolved from Maven Central.
 - **Action icons (optional).** To use Material icon names for `androidIcon` (e.g.
   `"AccountCircle"`), add the full Compose Material icon set to your app:
 
@@ -233,7 +232,7 @@ import { ErxesMessenger } from 'rn-erxes-sdk';
   integrationId="YOUR_INTEGRATION_ID"
   subDomain="yourcompany.erxes.io"
   user={{ name: 'Jane Doe', email: 'user@example.com' }}
-/>
+/>;
 ```
 
 ### Example 1 — Classic floating launcher
@@ -284,7 +283,7 @@ const isFocused = useIsFocused();
       },
     },
   ]}
-/>
+/>;
 ```
 
 `renderLoading` shows your own UI until the connection handshake completes
@@ -323,23 +322,23 @@ messenger and pops the screen.
 
 ### Props
 
-| Prop | Type | Notes |
-|---|---|---|
-| `integrationId` | `string` | Required. |
-| `endpoint` / `serverUrl` / `subDomain` | `string` | Provide one. `subDomain` accepts `'company.erxes.io'`. |
-| `displayMode` | `'classic' \| 'chat'` | Defaults to `'classic'`. |
-| `user` | `ErxesUser` | `{ name?, email?, phone?, customData? }`. |
-| `cachedCustomerId` | `string` | Reuse a cached customer. |
-| `primaryColor` | `string` | Hex accent, e.g. `'#3f78d9'`. |
-| `visible` | `boolean` | Controlled show/hide on change. |
-| `autoOpen` | `boolean` | Open after configure. Defaults to `true` in chat mode. |
-| `autoHideOnUnmount` | `boolean` | Hide on unmount. Defaults to `true`. |
-| `launcherVisible` | `boolean` | Show/hide the floating launcher after configure. |
-| `homeActions` / `drawerActions` | `ErxesAction[]` | `{ id, title, iosIcon?, androidIcon?, onPress? }`. Chat mode only. See [Action icons](#action-icons-ios--android). |
-| `renderLoading` | `() => ReactNode` | Rendered while configuring (between `onLoad` and `onReady`/`onError`), e.g. a spinner. Defaults to nothing. |
-| `onLoad` / `onReady` / `onOpen` / `onClose` / `onError` | callbacks | Lifecycle events. |
-| `onLoadingChange` | `(loading: boolean) => void` | Fired when the loading state changes (`true` while configuring). |
-| `onAction` | `(id, helpers) => void` | Fallback for tapped actions with no `onPress`. |
+| Prop                                                    | Type                         | Notes                                                                                                              |
+| ------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `integrationId`                                         | `string`                     | Required.                                                                                                          |
+| `endpoint` / `serverUrl` / `subDomain`                  | `string`                     | Provide one. `subDomain` accepts `'company.erxes.io'`.                                                             |
+| `displayMode`                                           | `'classic' \| 'chat'`        | Defaults to `'classic'`.                                                                                           |
+| `user`                                                  | `ErxesUser`                  | `{ name?, email?, phone?, customData? }`.                                                                          |
+| `cachedCustomerId`                                      | `string`                     | Reuse a cached customer.                                                                                           |
+| `primaryColor`                                          | `string`                     | Hex accent, e.g. `'#3f78d9'`.                                                                                      |
+| `visible`                                               | `boolean`                    | Controlled show/hide on change.                                                                                    |
+| `autoOpen`                                              | `boolean`                    | Open after configure. Defaults to `true` in chat mode.                                                             |
+| `autoHideOnUnmount`                                     | `boolean`                    | Hide on unmount. Defaults to `true`.                                                                               |
+| `launcherVisible`                                       | `boolean`                    | Show/hide the floating launcher after configure.                                                                   |
+| `homeActions` / `drawerActions`                         | `ErxesAction[]`              | `{ id, title, iosIcon?, androidIcon?, onPress? }`. Chat mode only. See [Action icons](#action-icons-ios--android). |
+| `renderLoading`                                         | `() => ReactNode`            | Rendered while configuring (between `onLoad` and `onReady`/`onError`), e.g. a spinner. Defaults to nothing.        |
+| `onLoad` / `onReady` / `onOpen` / `onClose` / `onError` | callbacks                    | Lifecycle events.                                                                                                  |
+| `onLoadingChange`                                       | `(loading: boolean) => void` | Fired when the loading state changes (`true` while configuring).                                                   |
+| `onAction`                                              | `(id, helpers) => void`      | Fallback for tapped actions with no `onPress`.                                                                     |
 
 Action `onPress` (and `onAction`) receive `ErxesMessengerHelpers`:
 `show`, `hide`, `showLauncher`, `hideLauncher`, `setUser`, `clearUser`.
@@ -350,10 +349,10 @@ On Android, `showLauncher`/`hideLauncher`/`hide` are no-ops (chat mode only).
 Each `homeActions` / `drawerActions` entry takes platform-specific icon fields —
 the platform you're not running on is ignored:
 
-| Field | Platform | Value |
-|---|---|---|
-| `iosIcon` | iOS | An [SF Symbol](https://developer.apple.com/sf-symbols/) name, e.g. `'person.crop.circle'`. |
-| `androidIcon` | Android | A Compose **Material icon name** (e.g. `'AccountCircle'`, `'Search'`) **or** a **drawable resource name** in your app (e.g. `'ic_profile'`). |
+| Field         | Platform | Value                                                                                                                                        |
+| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `iosIcon`     | iOS      | An [SF Symbol](https://developer.apple.com/sf-symbols/) name, e.g. `'person.crop.circle'`.                                                   |
+| `androidIcon` | Android  | A Compose **Material icon name** (e.g. `'AccountCircle'`, `'Search'`) **or** a **drawable resource name** in your app (e.g. `'ic_profile'`). |
 
 ```tsx
 homeActions={[
@@ -425,10 +424,20 @@ ErxesNativeIOS.configure({
   subDomain: 'yourcompany.erxes.io',
   displayMode: 'chat',
   homeActions: [
-    { id: 'orders', title: 'My Orders', iosIcon: 'bag', androidIcon: 'ShoppingBag' },
+    {
+      id: 'orders',
+      title: 'My Orders',
+      iosIcon: 'bag',
+      androidIcon: 'ShoppingBag',
+    },
   ],
   drawerActions: [
-    { id: 'settings', title: 'Settings', iosIcon: 'gearshape', androidIcon: 'Settings' },
+    {
+      id: 'settings',
+      title: 'Settings',
+      iosIcon: 'gearshape',
+      androidIcon: 'Settings',
+    },
   ],
 });
 
