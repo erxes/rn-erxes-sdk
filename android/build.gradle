@@ -55,7 +55,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
 
   // The erxes Android Messenger SDK (chat mode).
-  implementation "io.github.munkhorgilb:messenger-sdk:0.30.2"
+  implementation "io.github.munkhorgilb:messenger-sdk:0.30.5"
 
   // Needed at compile time to reference the Compose types in the SDK's public API:
   // `Color` for `Appearance(primaryColor)` (ui-graphics) and `ImageVector`, which
